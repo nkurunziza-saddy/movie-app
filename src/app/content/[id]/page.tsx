@@ -4,7 +4,7 @@ import {
 } from "@/lib/db/actions/queries";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Play, Share, Download, Calendar, Eye, Star } from "lucide-react";
+import { Play, Share, Download, Eye, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ReviewSection } from "@/components/review-section";
@@ -217,7 +217,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
           </div>
 
           <div id="reviews" className="lg:col-span-2">
-            <ReviewSection movieId={content.id} reviews={reviews as any} />
+            <ReviewSection contentId={content.id} reviews={reviews} />
           </div>
         </div>
       </div>

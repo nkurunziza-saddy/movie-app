@@ -8,23 +8,21 @@ import { Star } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-interface Review {
-  id: string;
-  rating: number;
-  reviewText: string | null;
-  createdAt: Date;
-  user: {
-    username: string | null;
-    email: string;
-  };
-}
-
 interface ReviewSectionProps {
-  movieId: string;
-  reviews: Review[];
+  contentId: string;
+  reviews: {
+    id: string;
+    createdAt: Date | null;
+    rating: number;
+    reviewText: string | null;
+    user: {
+      name: string;
+      username: string | null;
+    };
+  }[];
 }
 
-export function ReviewSection({ movieId, reviews }: ReviewSectionProps) {
+export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,7 +42,7 @@ export function ReviewSection({ movieId, reviews }: ReviewSectionProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/reviews/${movieId}`, {
+      const response = await fetch(`/api/reviews/${contentId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,10 +135,12 @@ export function ReviewSection({ movieId, reviews }: ReviewSectionProps) {
                     </div>
                     <span className="font-medium">
                       {review.user?.username ||
-                        review.user?.email.split("@")[0]}
+                        review.user?.name ||
+                        "Anonymous"}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      {new Date(review.createdAt).toLocaleDateString()}
+                      {review.createdAt &&
+                        new Date(review.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   {review.reviewText && (

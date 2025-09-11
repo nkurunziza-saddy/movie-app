@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bookmark, ArrowLeft, Star } from "lucide-react";
+import { Bookmark, Star } from "lucide-react";
 import { getUserBookmarks } from "@/lib/db/actions/queries";
 import Link from "next/link";
 import {
@@ -11,6 +11,7 @@ import {
   TextDescription,
   TextTitle,
 } from "@/components/ui/text";
+import Image from "next/image";
 
 export default async function BookmarksPage() {
   const session = await auth.api.getSession({
@@ -52,7 +53,9 @@ export default async function BookmarksPage() {
               <CardContent className="p-0">
                 <Link href={`/movie/${bookmark.content.id}`}>
                   <div className="relative overflow-hidden rounded-t-lg">
-                    <img
+                    <Image
+                      width={200}
+                      height={300}
                       src={
                         bookmark.content.posterUrl ||
                         `/placeholder.svg?height=300&width=200&query=${encodeURIComponent(

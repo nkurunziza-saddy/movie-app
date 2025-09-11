@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Star, Download, Clock, HardDrive, Crown } from "lucide-react";
 import { ContentInterface } from "@/lib/db/schema";
 
 interface ContentCardProps {
@@ -25,12 +24,6 @@ export function ContentCard({ content }: ContentCardProps) {
           height={450}
           className="object-cover w-full h-full"
         />
-
-        {content.isPremium && (
-          <div className="absolute top-2 left-2">
-            <Crown className="h-4 w-4 text-foreground" />
-          </div>
-        )}
 
         <div className="absolute top-2 right-2">
           <span className="text-xs text-foreground bg-background/50 px-1.5 py-0.5 rounded">

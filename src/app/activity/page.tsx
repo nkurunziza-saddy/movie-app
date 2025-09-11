@@ -16,6 +16,7 @@ import {
   TextDescription,
   TextTitle,
 } from "@/components/ui/text";
+import Image from "next/image";
 
 export default async function ActivityPage() {
   const session = await auth.api.getSession({
@@ -96,7 +97,9 @@ export default async function ActivityPage() {
                       key={download.id}
                       className="flex items-center gap-3 p-3 border rounded-lg"
                     >
-                      <img
+                      <Image
+                        width={40}
+                        height={60}
                         src={
                           download.content?.posterUrl ||
                           `/placeholder.svg?height=60&width=40&query=${encodeURIComponent(
@@ -157,7 +160,9 @@ export default async function ActivityPage() {
                       className="group"
                     >
                       <div className="relative overflow-hidden rounded-lg">
-                        <img
+                        <Image
+                          width={150}
+                          height={200}
                           src={
                             bookmark.content?.posterUrl ||
                             `/placeholder.svg?height=200&width=150&query=${encodeURIComponent(

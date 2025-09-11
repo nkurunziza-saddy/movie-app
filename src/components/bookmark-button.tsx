@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Bookmark, BookmarkCheck, Check, Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

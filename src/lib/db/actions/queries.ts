@@ -1,7 +1,6 @@
 import { db } from "../index";
 import {
   contentTable,
-  moviesTable,
   episodesTable,
   seasonsTable,
   reviewsTable,
@@ -10,7 +9,7 @@ import {
   watchProgressTable,
   usersTable,
 } from "../schema";
-import { eq, desc, asc, or, ilike, sql, and, SQL } from "drizzle-orm";
+import { eq, desc, sql, and, SQL } from "drizzle-orm";
 
 export const getContent = async (filters?: {
   genre?: string[];

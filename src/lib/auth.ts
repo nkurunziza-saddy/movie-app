@@ -33,3 +33,5 @@ export const auth = betterAuth({
     modelName: "verificationsTable",
   },
 });
+
+export type SessionUser = typeof auth.$Infer.Session.user;

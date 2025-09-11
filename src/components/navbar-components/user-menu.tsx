@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth-client";
 import Link from "next/link";
+import type { SessionUser } from "@/lib/auth";
 
-export default function UserMenu({ user }: { user: any }) {
+export default function UserMenu({ user }: { user: SessionUser }) {
   const handleLogout = async () => {
     await signOut();
   };
@@ -32,7 +33,7 @@ export default function UserMenu({ user }: { user: any }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
           <Avatar>
-            <AvatarImage src={user.image} alt={user.name} />
+            <AvatarImage src={user.image!} alt={user.name} />
             <AvatarFallback>{user.name[0]}</AvatarFallback>
           </Avatar>
         </Button>

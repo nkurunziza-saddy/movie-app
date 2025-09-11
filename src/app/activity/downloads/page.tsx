@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download, ArrowLeft } from "lucide-react";
+import { Calendar, Download } from "lucide-react";
 import { getUserDownloads } from "@/lib/db/actions/queries";
 import Link from "next/link";
 import {
@@ -12,6 +12,7 @@ import {
   TextDescription,
   TextTitle,
 } from "@/components/ui/text";
+import Image from "next/image";
 
 export default async function DownloadsPage() {
   const session = await auth.api.getSession({
@@ -56,7 +57,9 @@ export default async function DownloadsPage() {
                     key={download.id}
                     className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
-                    <img
+                    <Image
+                      height={80}
+                      width={60}
                       src={
                         download.content.posterUrl ||
                         `/placeholder.svg?height=80&width=60&query=${encodeURIComponent(

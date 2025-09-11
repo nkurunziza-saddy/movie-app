@@ -1,6 +1,5 @@
 import InfoMenu from "@/components/navbar-components/info-menu";
 import Logo from "@/components/navbar-components/logo";
-import NotificationMenu from "@/components/navbar-components/notification-menu";
 import UserMenu from "@/components/navbar-components/user-menu";
 import { Button } from "@/components/ui/button";
 import {

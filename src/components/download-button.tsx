@@ -9,11 +9,11 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface DownloadButtonProps {
-  movieId: string;
+  contentId: string;
   className?: string;
 }
 
-export function DownloadButton({ movieId, className }: DownloadButtonProps) {
+export function DownloadButton({ contentId, className }: DownloadButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
@@ -28,7 +28,7 @@ export function DownloadButton({ movieId, className }: DownloadButtonProps) {
     setIsDownloading(true);
 
     try {
-      const response = await fetch(`/api/download/${movieId}`, {
+      const response = await fetch(`/api/download/${contentId}`, {
         method: "POST",
       });
 

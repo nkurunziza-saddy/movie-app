@@ -139,7 +139,7 @@ export function SearchAndFilters() {
         <div className="flex flex-wrap gap-2">
           {searchQuery && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Search: "{searchQuery}"
+              Search: &quot;{searchQuery}&quot;
               <X className="size-3" onClick={() => setSearchQuery("")} />
             </Badge>
           )}
