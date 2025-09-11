@@ -40,7 +40,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
   };
 
   return (
-    <div className="max-w-[90rem] mx-auto">
+    <div className="sm:max-w-[90rem] mx-auto">
       <div className="sticky top-4 z-50 flex justify-center pt-2">
         <nav className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full p-1 border">
           {[
@@ -60,7 +60,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
         </nav>
       </div>
 
-      <div className="relative h-[80vh] mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="relative h-[80vh] mx-2 sm:mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl">
         <div className="absolute inset-0">
           <Image
             src={content.posterUrl || "/placeholder.svg"}
@@ -123,7 +123,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
         </div>
       </div>
 
-      <div id="download" className="max-w-4xl px-8 lg:px-16 py-12">
+      <div id="download" className="max-w-4xl md:px-8 lg:px-16 py-4 md:py-12">
         <div className="flex flex-wrap items-center gap-4">
           {content.contentType === "movie" ? (
             <Button
@@ -168,7 +168,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
         </div>
       </div>
 
-      <div className=" px-8 lg:px-16 py-12">
+      <div className="md:px-8 lg:px-16 py-4 md:py-12">
         <div className="grid lg:grid-cols-3 gap-8">
           <div id="overview" className="lg:col-span-1">
             <div className="bg-card rounded-md p-6 border">
