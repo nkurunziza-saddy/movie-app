@@ -19,9 +19,9 @@ import { headers } from "next/headers";
 import Link from "next/link";
 
 const navigationLinks = [
-  { href: "#trending", label: "Trending" },
-  { href: "#top-rated", label: "Top Rated" },
-  { href: "#new-releases", label: "New Releases" },
+  { href: "/activity", label: "Activity" },
+  { href: "/activity/settings", label: "Settings" },
+  { href: "/activity/bookmarks", label: "Bookmarks" },
 ];
 
 export default async function Header() {

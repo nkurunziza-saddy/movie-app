@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, ChevronDown } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 
 const genres = [
@@ -23,21 +24,87 @@ const genres = [
 const qualities = ["720p", "1080p", "4K"];
 
 export function SearchAndFilters() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedQuality, setSelectedQuality] = useState<string>("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const searchQuery = searchParams.get("q") ?? "";
+  const selectedGenres = searchParams.getAll("genre");
+  const selectedQuality = searchParams.get("quality") ?? "";
+
   const [showFilters, setShowFilters] = useState(false);
 
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  const updateQueryString = (newParams: URLSearchParams) => {
+    router.replace(`${pathname}?${newParams.toString()}`);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (e.target.value) {
+      params.set("q", e.target.value);
+    } else {
+      params.delete("q");
+    }
+    updateQueryString(params);
+  };
+
   const toggleGenre = (genre: string) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    const currentGenres = params.getAll("genre");
+    if (currentGenres.includes(genre)) {
+      params.delete("genre");
+      currentGenres
+        .filter((g) => g !== genre)
+        .forEach((g) => params.append("genre", g));
+    } else {
+      params.append("genre", genre);
+    }
+    updateQueryString(params);
+  };
+
+  const handleQualityChange = (quality: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedQuality === quality) {
+      params.delete("quality");
+    } else {
+      params.set("quality", quality);
+    }
+    updateQueryString(params);
   };
 
   const clearFilters = () => {
-    setSelectedGenres([]);
-    setSelectedQuality("");
-    setSearchQuery("");
+    router.replace(pathname);
+  };
+
+    const removeGenre = (genre: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const currentGenres = params.getAll("genre");
+    params.delete("genre");
+    currentGenres
+      .filter((g) => g !== genre)
+      .forEach((g) => params.append("genre", g));
+    updateQueryString(params);
+  };
+
+  const removeQuality = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("quality");
+    updateQueryString(params);
+  };
+
+  const removeSearchQuery = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("q");
+    updateQueryString(params);
   };
 
   const hasActiveFilters =
@@ -50,7 +117,7 @@ export function SearchAndFilters() {
         <Input
           placeholder="Search movies..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           className="pl-10 text-base"
         />
       </div>
@@ -62,14 +129,13 @@ export function SearchAndFilters() {
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center gap-2"
         >
-          {/* <Filter className="h-4 w-4" /> */}
           Filters
           {hasActiveFilters && (
             <Badge
               variant="secondary"
               className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
             >
-              {selectedGenres.length + (selectedQuality ? 1 : 0)}
+              {selectedGenres.length + (selectedQuality ? 1 : 0) + (searchQuery ? 1 : 0)}
             </Badge>
           )}
           <ChevronDown className="size-4" />
@@ -85,7 +151,7 @@ export function SearchAndFilters() {
 
       {showFilters && (
         <Card>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 pt-6">
             <div>
               <h3 className="font-medium text-sm text-card-foreground mb-2">
                 Genres
@@ -119,11 +185,7 @@ export function SearchAndFilters() {
                       selectedQuality === quality ? "default" : "outline"
                     }
                     size="sm"
-                    onClick={() =>
-                      setSelectedQuality(
-                        selectedQuality === quality ? "" : quality
-                      )
-                    }
+                    onClick={() => handleQualityChange(quality)}
                     className=""
                   >
                     {quality}
@@ -140,7 +202,7 @@ export function SearchAndFilters() {
           {searchQuery && (
             <Badge variant="secondary" className="flex items-center gap-1">
               Search: &quot;{searchQuery}&quot;
-              <X className="size-3" onClick={() => setSearchQuery("")} />
+              <X className="size-3 cursor-pointer" onClick={removeSearchQuery} />
             </Badge>
           )}
           {selectedGenres.map((genre) => (
@@ -150,13 +212,13 @@ export function SearchAndFilters() {
               className="flex items-center gap-1"
             >
               {genre}
-              <X className="size-3" onClick={() => toggleGenre(genre)} />
+              <X className="size-3 cursor-pointer" onClick={() => removeGenre(genre)} />
             </Badge>
           ))}
           {selectedQuality && (
             <Badge variant="secondary" className="flex items-center gap-1">
               {selectedQuality}
-              <X className="size-3" onClick={() => setSelectedQuality("")} />
+              <X className="size-3 cursor-pointer" onClick={removeQuality} />
             </Badge>
           )}
         </div>

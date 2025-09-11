@@ -1,14 +1,14 @@
 import { Suspense } from "react";
 import { MovieCatalog } from "@/components/content-catalog";
 import { SearchAndFilters } from "@/components/search-and-filters";
-import Header from "@/components/header";
 import {
   TextContainer,
   TextDescription,
   TextTitle,
 } from "@/components/ui/text";
 
-export default function Home() {
+export default async function Home(props: PageProps<"/">) {
+  const searchParams = await props.searchParams;
   return (
     <main className="">
       <TextContainer>
@@ -21,7 +21,7 @@ export default function Home() {
       <SearchAndFilters />
 
       <Suspense fallback={<MovieCatalogSkeleton />}>
-        <MovieCatalog />
+        <MovieCatalog searchParams={searchParams} />
       </Suspense>
     </main>
   );

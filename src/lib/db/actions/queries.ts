@@ -8,30 +8,63 @@ import {
   downloadsTable,
   watchProgressTable,
   usersTable,
+  moviesTable,
 } from "../schema";
-import { eq, desc, sql, and, SQL } from "drizzle-orm";
+import { eq, desc, sql, and, SQL, ilike, or, asc } from "drizzle-orm";
 
-export const getContent = async (filters?: {
-  genre?: string[];
-  contentType?: "movie" | "series";
-  search?: string;
-  limit?: number;
-  offset?: number;
-  sortBy?: "title" | "releaseYear" | "averageRating" | "downloadCount";
-  sortOrder?: "asc" | "desc";
-  isPremium?: boolean;
+export const getContent = async (searchParams: {
+  [key: string]: string | string[] | undefined;
 }) => {
-  return await db.query.contentTable.findMany({
-    where: (contentTable, { and, eq, or, ilike, sql }) => {
-      const conditions: any[] = [eq(contentTable.isActive, true)];
+  const filters = {
+    genre: Array.isArray(searchParams.genre)
+      ? searchParams.genre
+      : searchParams.genre
+      ? [searchParams.genre]
+      : [],
+    contentType: searchParams.contentType as "movie" | "series" | undefined,
+    search: typeof searchParams.q === "string" ? searchParams.q : undefined,
+    limit:
+      typeof searchParams.limit === "string"
+        ? parseInt(searchParams.limit, 10)
+        : undefined,
+    offset:
+      typeof searchParams.offset === "string"
+        ? parseInt(searchParams.offset, 10)
+        : undefined,
+    sortBy:
+      typeof searchParams.sortBy === "string"
+        ? (searchParams.sortBy as
+            | "title"
+            | "releaseYear"
+            | "averageRating"
+            | "downloadCount")
+        : undefined,
+    sortOrder:
+      typeof searchParams.sortOrder === "string"
+        ? (searchParams.sortOrder as "asc" | "desc")
+        : undefined,
+    isPremium:
+      typeof searchParams.isPremium === "string"
+        ? searchParams.isPremium === "true"
+        : undefined,
+    quality:
+      typeof searchParams.quality === "string"
+        ? (searchParams.quality as "720p" | "1080p" | "4K")
+        : undefined,
+  };
+
+  const query = db
+    .select()
+    .from(contentTable)
+    .where(() => {
+      const conditions: (SQL | undefined)[] = [eq(contentTable.isActive, true)];
 
       if (filters?.genre && filters.genre.length > 0) {
         conditions.push(
-          sql`${contentTable.genre} && ${sql.raw(
-            `ARRAY[${filters.genre
-              .map((g, i) => `$${i + 1}`)
-              .join(", ")}]::varchar[]`
-          )}`
+          sql`${contentTable.genre} && ARRAY[${sql.join(
+            filters.genre.map((g) => sql.raw(`'${g}'`)),
+            sql.raw(",")
+          )}]::varchar[]`
         );
       }
 
@@ -50,30 +83,41 @@ export const getContent = async (filters?: {
         ];
         conditions.push(or(...searchConditions));
       }
+      if (filters.quality) {
+        conditions.push(eq(moviesTable.quality, filters.quality));
+      }
 
-      return and(...conditions);
-    },
-    orderBy: (contentTable, { asc, desc }) => [
-      (filters?.sortOrder === "asc" ? asc : desc)(
-        (() => {
-          switch (filters?.sortBy) {
-            case "title":
-              return contentTable.title;
-            case "releaseYear":
-              return contentTable.releaseYear;
-            case "averageRating":
-              return contentTable.averageRating;
-            case "downloadCount":
-              return contentTable.downloadCount;
-            default:
-              return contentTable.uploadDate;
-          }
-        })()
-      ),
-    ],
-    limit: filters?.limit,
-    offset: filters?.offset,
-  });
+      return and(...conditions.filter((c): c is SQL => !!c));
+    })
+    .orderBy(() => {
+      const orderByColumn = (() => {
+        switch (filters?.sortBy) {
+          case "title":
+            return contentTable.title;
+          case "releaseYear":
+            return contentTable.releaseYear;
+          case "averageRating":
+            return contentTable.averageRating;
+          case "downloadCount":
+            return contentTable.downloadCount;
+          default:
+            return contentTable.uploadDate;
+        }
+      })();
+      return filters?.sortOrder === "asc"
+        ? asc(orderByColumn)
+        : desc(orderByColumn);
+    })
+    .limit(filters.limit ?? 10)
+    .offset(filters.offset ?? 0);
+
+  if (filters.quality) {
+    return query
+      .leftJoin(moviesTable, eq(contentTable.id, moviesTable.contentId))
+      .execute();
+  }
+
+  return query.execute();
 };
 
 export const getMovies = async (filters?: {
@@ -86,10 +130,20 @@ export const getMovies = async (filters?: {
   sortOrder?: "asc" | "desc";
   isPremium?: boolean;
 }) => {
-  return await getContent({
-    ...filters,
+  const searchParams: { [key: string]: string | string[] | undefined } = {
     contentType: "movie",
-  });
+  };
+
+  if (filters?.genre) searchParams.genre = filters.genre;
+  if (filters?.quality) searchParams.quality = filters.quality;
+  if (filters?.search) searchParams.q = filters.search;
+  if (filters?.limit) searchParams.limit = String(filters.limit);
+  if (filters?.offset) searchParams.offset = String(filters.offset);
+  if (filters?.sortBy) searchParams.sortBy = filters.sortBy;
+  if (filters?.sortOrder) searchParams.sortOrder = filters.sortOrder;
+  if (filters?.isPremium) searchParams.isPremium = String(filters.isPremium);
+
+  return await getContent(searchParams);
 };
 
 export const getContentWithDetails = async (id: string) => {
@@ -120,10 +174,19 @@ export const getSeries = async (filters?: {
   sortOrder?: "asc" | "desc";
   isPremium?: boolean;
 }) => {
-  return await getContent({
-    ...filters,
+  const searchParams: { [key: string]: string | string[] | undefined } = {
     contentType: "series",
-  });
+  };
+
+  if (filters?.genre) searchParams.genre = filters.genre;
+  if (filters?.search) searchParams.q = filters.search;
+  if (filters?.limit) searchParams.limit = String(filters.limit);
+  if (filters?.offset) searchParams.offset = String(filters.offset);
+  if (filters?.sortBy) searchParams.sortBy = filters.sortBy;
+  if (filters?.sortOrder) searchParams.sortOrder = filters.sortOrder;
+  if (filters?.isPremium) searchParams.isPremium = String(filters.isPremium);
+
+  return await getContent(searchParams);
 };
 
 export const getEpisodeById = async (id: string) => {
@@ -350,10 +413,16 @@ export const searchContent = async (
     offset?: number;
   }
 ) => {
-  return await getContent({
-    search: searchTerm,
-    ...filters,
-  });
+  const searchParams: { [key: string]: string | string[] | undefined } = {
+    q: searchTerm,
+  };
+
+  if (filters?.contentType) searchParams.contentType = filters.contentType;
+  if (filters?.genre) searchParams.genre = filters.genre;
+  if (filters?.limit) searchParams.limit = String(filters.limit);
+  if (filters?.offset) searchParams.offset = String(filters.offset);
+
+  return await getContent(searchParams);
 };
 
 export const incrementDownloadCount = async (contentId: string) => {

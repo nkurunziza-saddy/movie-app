@@ -2,8 +2,15 @@ import { ContentCard } from "@/components/content-card";
 import { TextContainer, TextTitle } from "./ui/text";
 import { getContent } from "@/lib/db/actions/queries";
 
-export async function MovieCatalog() {
-  const content = await getContent();
+interface MovieCatalogProps {
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  };
+}
+
+export async function MovieCatalog({ searchParams }: MovieCatalogProps) {
+  const content = await getContent(searchParams);
+
   return (
     <div className="space-y-6">
       <TextContainer>
