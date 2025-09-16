@@ -38,7 +38,7 @@ export default function InfoMenu() {
           className="cursor-pointer py-1 focus:bg-transparent focus:underline"
           asChild
         >
-          <Link href="/docs">
+          <Link href="/">
             <BookIcon size={16} className="opacity-60" aria-hidden="true" />
             Documentation
           </Link>
@@ -47,7 +47,7 @@ export default function InfoMenu() {
           className="cursor-pointer py-1 focus:bg-transparent focus:underline"
           asChild
         >
-          <Link href="/support">
+          <Link href="/">
             <LifeBuoyIcon size={16} className="opacity-60" aria-hidden="true" />
             Support
           </Link>
@@ -56,7 +56,7 @@ export default function InfoMenu() {
           className="cursor-pointer py-1 focus:bg-transparent focus:underline"
           asChild
         >
-          <Link href="/contact">
+          <Link href="/">
             <MessageCircleMoreIcon
               size={16}
               className="opacity-60"

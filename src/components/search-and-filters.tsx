@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,14 +21,12 @@ const genres = [
   "Documentary",
 ];
 
-const qualities = ["720p", "1080p", "4K"];
-
 export function SearchAndFilters() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const searchQuery = searchParams.get("q") ?? "";
+  const selectedContentType = searchParams.getAll("contentType");
   const selectedGenres = searchParams.getAll("genre");
   const selectedQuality = searchParams.get("quality") ?? "";
 
@@ -44,7 +42,7 @@ export function SearchAndFilters() {
   );
 
   const updateQueryString = (newParams: URLSearchParams) => {
-    router.replace(`${pathname}?${newParams.toString()}`);
+    router.replace(`/?${newParams.toString()}`);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +51,16 @@ export function SearchAndFilters() {
       params.set("q", e.target.value);
     } else {
       params.delete("q");
+    }
+    updateQueryString(params);
+  };
+
+  const toggleContentType = (content_type: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedQuality === content_type) {
+      params.delete("contentType");
+    } else {
+      params.set("contentType", content_type);
     }
     updateQueryString(params);
   };
@@ -71,33 +79,27 @@ export function SearchAndFilters() {
     updateQueryString(params);
   };
 
-  const handleQualityChange = (quality: string) => {
+  const clearFilters = () => {
+    router.replace("/");
+  };
+
+  const removeType = (content_type: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (selectedQuality === quality) {
-      params.delete("quality");
-    } else {
-      params.set("quality", quality);
-    }
+    const currentTypes = params.getAll("contentType");
+    params.delete("contentType");
+    currentTypes
+      .filter((g) => g !== content_type)
+      .forEach((g) => params.append("contentType", g));
     updateQueryString(params);
   };
 
-  const clearFilters = () => {
-    router.replace(pathname);
-  };
-
-    const removeGenre = (genre: string) => {
+  const removeGenre = (genre: string) => {
     const params = new URLSearchParams(searchParams.toString());
     const currentGenres = params.getAll("genre");
     params.delete("genre");
     currentGenres
       .filter((g) => g !== genre)
       .forEach((g) => params.append("genre", g));
-    updateQueryString(params);
-  };
-
-  const removeQuality = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("quality");
     updateQueryString(params);
   };
 
@@ -135,7 +137,9 @@ export function SearchAndFilters() {
               variant="secondary"
               className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
             >
-              {selectedGenres.length + (selectedQuality ? 1 : 0) + (searchQuery ? 1 : 0)}
+              {selectedGenres.length +
+                (selectedContentType ? 1 : 0) +
+                (searchQuery ? 1 : 0)}
             </Badge>
           )}
           <ChevronDown className="size-4" />
@@ -151,7 +155,29 @@ export function SearchAndFilters() {
 
       {showFilters && (
         <Card>
-          <CardContent className="space-y-3 pt-6">
+          <CardContent className="space-y-3">
+            <div>
+              <h3 className="font-medium text-sm text-card-foreground mb-2">
+                Content type
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {["movie", "tv"].map((content_type) => (
+                  <Button
+                    key={content_type}
+                    variant={
+                      selectedContentType.includes(content_type)
+                        ? "default"
+                        : "outline"
+                    }
+                    size="sm"
+                    onClick={() => toggleContentType(content_type)}
+                    className="capitalize"
+                  >
+                    {content_type}
+                  </Button>
+                ))}
+              </div>
+            </div>
             <div>
               <h3 className="font-medium text-sm text-card-foreground mb-2">
                 Genres
@@ -165,30 +191,9 @@ export function SearchAndFilters() {
                     }
                     size="sm"
                     onClick={() => toggleGenre(genre)}
-                    className=""
+                    className="capitalize"
                   >
                     {genre}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-medium text-sm text-card-foreground mb-2">
-                Quality
-              </h3>
-              <div className="flex gap-2">
-                {qualities.map((quality) => (
-                  <Button
-                    key={quality}
-                    variant={
-                      selectedQuality === quality ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => handleQualityChange(quality)}
-                    className=""
-                  >
-                    {quality}
                   </Button>
                 ))}
               </div>
@@ -202,9 +207,25 @@ export function SearchAndFilters() {
           {searchQuery && (
             <Badge variant="secondary" className="flex items-center gap-1">
               Search: &quot;{searchQuery}&quot;
-              <X className="size-3 cursor-pointer" onClick={removeSearchQuery} />
+              <X
+                className="size-3 cursor-pointer"
+                onClick={removeSearchQuery}
+              />
             </Badge>
           )}
+          {selectedContentType.map((content_type) => (
+            <Badge
+              key={content_type}
+              variant="secondary"
+              className="flex capitalize items-center gap-1"
+            >
+              {content_type}
+              <X
+                className="size-3 cursor-pointer"
+                onClick={() => removeType(content_type)}
+              />
+            </Badge>
+          ))}
           {selectedGenres.map((genre) => (
             <Badge
               key={genre}
@@ -212,15 +233,12 @@ export function SearchAndFilters() {
               className="flex items-center gap-1"
             >
               {genre}
-              <X className="size-3 cursor-pointer" onClick={() => removeGenre(genre)} />
+              <X
+                className="size-3 cursor-pointer"
+                onClick={() => removeGenre(genre)}
+              />
             </Badge>
           ))}
-          {selectedQuality && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {selectedQuality}
-              <X className="size-3 cursor-pointer" onClick={removeQuality} />
-            </Badge>
-          )}
         </div>
       )}
     </div>

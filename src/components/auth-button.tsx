@@ -35,7 +35,7 @@ export function AuthButton() {
           <Link href="/auth/signin">Sign In</Link>
         </Button>
         <Button variant="default" size="sm" asChild>
-          <Link href="/auth/signup">Sign Up</Link>
+          <Link href="/auth/signin">Sign Up</Link>
         </Button>
       </div>
     );
@@ -59,22 +59,16 @@ export function AuthButton() {
             {session.user.name || session.user.email}
           </p>
           <p className="text-xs text-muted-foreground">{session.user.email}</p>
-          {/* {session.user.subscriptionTier === "premium" && (
-            <div className="flex items-center gap-1 mt-1">
-              <Crown className="h-3 w-3 text-accent" />
-              <span className="text-xs text-accent font-medium">Premium</span>
-            </div>
-          )} */}
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/bookmarks" className="flex items-center gap-2">
+          <Link href="/activity/bookmarks" className="flex items-center gap-2">
             <Bookmark className="h-4 w-4" />
             My Bookmarks
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/downloads" className="flex items-center gap-2">
+          <Link href="/activity/downloads" className="flex items-center gap-2">
             <Download className="h-4 w-4" />
             Download History
           </Link>

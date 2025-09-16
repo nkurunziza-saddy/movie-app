@@ -1,27 +1,31 @@
-import {
-  getContentWithDetails,
-  getContentReviews,
-} from "@/lib/db/actions/queries";
+import { getContentWithDetails } from "@/lib/db/actions/queries/basic";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Play, Share, Download, Eye, Star } from "lucide-react";
+import { Share, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ReviewSection } from "@/components/review-section";
 import Link from "next/link";
+import { format } from "date-fns";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
-  const [content, reviews] = await Promise.all([
-    getContentWithDetails(id),
-    getContentReviews(id),
-  ]);
-
+  console.log({ id });
+  const content = await getContentWithDetails(id);
+  console.log({ content });
   if (!content) {
     notFound();
   }
 
-  const { movie, seasons } = content;
+  const { movie, tvShow, reviews } = content;
+
+  function calculateAverageRating() {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return total / reviews.length;
+  }
+
+  const averageRating = calculateAverageRating();
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -42,18 +46,17 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
   return (
     <div className="sm:max-w-[90rem] mx-auto">
       <div className="sticky top-4 z-50 flex justify-center pt-2">
-        <nav className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full p-1 border">
+        <nav className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-md p-1 border">
           {[
-            { name: "overview", icon: Play },
-            { name: "download", icon: Download },
-            { name: "reviews", icon: Star },
-          ].map(({ name, icon: Icon }) => (
+            { name: "overview" },
+            { name: "download" },
+            { name: "reviews" },
+          ].map(({ name }) => (
             <Link
               key={name}
               href={`#${name}`}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 capitalize"
+              className="flex items-center gap-1.5 px-4 py-1 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 capitalize"
             >
-              <Icon className="h-4 w-4" />
               {name}
             </Link>
           ))}
@@ -76,35 +79,17 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
         <div className="relative z-10 h-full flex items-center">
           <div className="max-w-4xl px-8 lg:px-16">
             <div className="max-w-2xl space-y-6">
-              <h1 className="text-4xl lg:text-6xl font-black text-foreground leading-tight tracking-tight">
+              <h1 className="text-xl sm:text-4xl lg:text-6xl font-black text-foreground leading-tight tracking-tight">
                 {content.title}
               </h1>
 
               <div className="flex flex-wrap items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold text-foreground">
-                    {Math.round(Number(content.averageRating) * 20)}% Match
-                  </span>
-                </div>
                 <span className="text-muted-foreground">
                   {content.releaseYear}
                 </span>
-                {content.contentType === "movie" && movie && (
-                  <>
-                    <Badge variant="outline" className="text-xs">
-                      {movie.quality || "HD"}
-                    </Badge>
-                    <span className="text-muted-foreground">
-                      {formatDuration(movie.durationMinutes || 120)}
-                    </span>
-                  </>
-                )}
-                {content.contentType === "series" && (
-                  <Badge variant="outline" className="text-xs">
-                    {content.totalSeasons} Seasons
-                  </Badge>
-                )}
+                <Badge variant="outline" className="text-xs">
+                  {content.contentType === "tv" ? "TV Show" : "Movie"}
+                </Badge>
               </div>
 
               <p className="text-muted-foreground text-base lg:text-lg leading-relaxed max-w-xl">
@@ -137,7 +122,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
             <div className="grid gap-4 w-full">
               <h3 className="text-xl font-semibold mb-4">Episodes</h3>
               <div className="grid gap-3">
-                {seasons?.map((season) =>
+                {tvShow.seasons?.map((season) =>
                   season.episodes.map((episode) => (
                     <div
                       key={episode.id}
@@ -179,16 +164,13 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Upload Date</span>
                   <span className="font-medium text-foreground">
-                    {new Date(
-                      content.uploadDate || Date.now()
-                    ).toLocaleDateString()}
+                    {format(new Date(content.uploadDate!), "MMM dd, yyyy")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Downloads</span>
                   <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
+                    <span className="text-sm text-foreground">
                       {formatNumber(content.downloadCount || 0)}
                     </span>
                   </div>
@@ -206,9 +188,8 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Rating</span>
                   <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-foreground">
-                      {content.averageRating}/5
+                      {averageRating}
                     </span>
                   </div>
                 </div>

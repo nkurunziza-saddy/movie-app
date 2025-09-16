@@ -8,7 +8,7 @@ import {
   usersTable,
   bookmarksTable,
   downloadsTable,
-  watchProgressTable,
+  tvShowsTable,
 } from "@/lib/db/schema";
 
 async function seed() {
@@ -28,10 +28,10 @@ async function seed() {
     await tx.delete(reviewsTable);
     await tx.delete(bookmarksTable);
     await tx.delete(downloadsTable);
-    await tx.delete(watchProgressTable);
     await tx.delete(episodesTable);
     await tx.delete(seasonsTable);
     await tx.delete(moviesTable);
+    await tx.delete(tvShowsTable);
     await tx.delete(contentTable);
 
     // Insert Movies
@@ -47,13 +47,12 @@ async function seed() {
           posterUrl: "/inception-movie-poster.png",
           trailerUrl: "https://www.youtube.com/watch?v=YoHD9XEInc0",
           contentType: "movie" as const,
-          isPremium: true,
           uploaderId: userId,
         },
         movie: {
           durationMinutes: 148,
-          quality: "1080p" as const,
           fileSizeMb: 2500,
+          movieFileUrl: "/placeholder.mp4",
         },
       },
       {
@@ -70,8 +69,8 @@ async function seed() {
         },
         movie: {
           durationMinutes: 136,
-          quality: "1080p" as const,
           fileSizeMb: 2200,
+          movieFileUrl: "/placeholder.mp4",
         },
       },
       {
@@ -84,13 +83,12 @@ async function seed() {
           posterUrl: "/interstellar-movie-poster.jpg",
           trailerUrl: "https://www.youtube.com/watch?v=zSWdZVtXT7E",
           contentType: "movie" as const,
-          isPremium: true,
           uploaderId: userId,
         },
         movie: {
           durationMinutes: 169,
-          quality: "4K" as const,
           fileSizeMb: 4500,
+          movieFileUrl: "/placeholder.mp4",
         },
       },
       {
@@ -107,8 +105,8 @@ async function seed() {
         },
         movie: {
           durationMinutes: 154,
-          quality: "720p" as const,
           fileSizeMb: 1500,
+          movieFileUrl: "/placeholder.mp4",
         },
       },
       {
@@ -121,13 +119,12 @@ async function seed() {
           posterUrl: "/dark-knight-poster.png",
           trailerUrl: "https://www.youtube.com/watch?v=EXeTwQWrcwY",
           contentType: "movie" as const,
-          isPremium: true,
           uploaderId: userId,
         },
         movie: {
           durationMinutes: 152,
-          quality: "1080p" as const,
           fileSizeMb: 2800,
+          movieFileUrl: "/placeholder.mp4",
         },
       },
     ];
@@ -155,42 +152,43 @@ async function seed() {
         genre: ["Sci-Fi", "Adventure"],
         releaseYear: 2023,
         posterUrl: "/generic-sci-fi-poster.png",
-        contentType: "series" as const,
-        totalSeasons: 1,
+        contentType: "tv" as const,
         uploaderId: userId,
       })
+      .returning();
+
+    const [tvShow] = await tx
+      .insert(tvShowsTable)
+      .values({ contentId: seriesContent.id })
       .returning();
 
     const [season1] = await tx
       .insert(seasonsTable)
       .values({
-        contentId: seriesContent.id,
+        tvShowId: tvShow.id,
         seasonNumber: 1,
         title: "The First Chapter",
-        totalEpisodes: 2,
       })
       .returning();
 
     await tx.insert(episodesTable).values([
       {
         seasonId: season1.id,
-        contentId: seriesContent.id,
         episodeNumber: 1,
         title: "The Awakening",
         description: "A new hero emerges.",
         durationMinutes: 45,
-        quality: "1080p" as const,
         fileSizeMb: 800,
+        videoFileUrl: "/placeholder.mp4",
       },
       {
         seasonId: season1.id,
-        contentId: seriesContent.id,
         episodeNumber: 2,
         title: "The First Challenge",
         description: "The hero faces their first test.",
         durationMinutes: 48,
-        quality: "1080p" as const,
         fileSizeMb: 850,
+        videoFileUrl: "/placeholder.mp4",
       },
     ]);
 

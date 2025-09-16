@@ -12,11 +12,11 @@ import { useState } from "react";
 import { signIn, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { LoaderIcon } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const { data: session, isPending } = useSession();
-  console.log("Session:", session);
   if (isPending) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center p-4 z-50">
@@ -24,9 +24,9 @@ export default function SignIn() {
       </div>
     );
   }
-  // if (session?.user) {
-  //   redirect("/");
-  // }
+  if (session?.user) {
+    redirect("/");
+  }
 
   return (
     <div className="fixed inset-0 bg-background flex items-center justify-center p-4 z-50">

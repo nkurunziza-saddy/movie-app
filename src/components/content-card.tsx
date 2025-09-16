@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ContentInterface } from "@/lib/db/schema";
+import { type ContentInterface } from "@/lib/db/schema";
 
 interface ContentCardProps {
   content: ContentInterface;
@@ -11,34 +10,22 @@ interface ContentCardProps {
 
 export function ContentCard({ content }: ContentCardProps) {
   return (
-    <div className="relative border">
-      <Link
-        className="absolute inset-0 z-10"
-        href={`/content/${content.id}`}
-      ></Link>
-      <div className="relative aspect-[2/3] overflow-hidden rounded-md bg-muted">
+    <div className=" relative border border-border/40 rounded-lg overflow-hidden bg-card/50">
+      <Link className="absolute inset-0 z-10" href={`/content/${content.id}`} />
+      <div className="relative aspect-[2/3] overflow-hidden bg-muted/30">
         <Image
-          src={content.posterUrl || "/placeholder.svg"}
+          src={content.posterUrl || "/placeholder.jpg"}
           alt={content.title}
-          width={300}
-          height={450}
+          width={200}
+          height={300}
           className="object-cover w-full h-full"
         />
-
-        <div className="absolute top-2 right-2">
-          <span className="text-xs text-foreground bg-background/50 px-1.5 py-0.5 rounded">
-            {content.contentType === "movie" ? "Movie" : "Series"}
-          </span>
-        </div>
       </div>
 
-      <div className="mt-3 space-y-2 px-2 py-1">
-        <div>
-          <div className="text-sm font-medium leading-tight hover:underline">
-            {content.title}
-          </div>
-
-          <div className="text-xs text-muted-foreground mt-0.5">
+      <div className="p-2 space-y-1">
+        <div className="font-medium text-xs leading-tight">{content.title}</div>
+        <div className="flex gap-2">
+          <div className="text-xs text-muted-foreground">
             {content.releaseYear}
           </div>
         </div>

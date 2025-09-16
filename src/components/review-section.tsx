@@ -74,7 +74,7 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Reviews ({reviews.length})</CardTitle>
+          <CardTitle>Reviews</CardTitle>
         </CardHeader>
         <CardContent>
           {session && (
@@ -88,10 +88,10 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
                     className="p-1"
                   >
                     <Star
-                      className={`h-5 w-5 ${
+                      className={`size-4 ${
                         star <= rating
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
+                          ? "fill-amber-400 dark:fill-amber-600 text-amber-400 dark:text-amber-600"
+                          : "text-muted-foreground"
                       }`}
                     />
                   </button>
@@ -125,10 +125,10 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`h-4 w-4 ${
+                          className={`size-3.5 ${
                             star <= review.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
+                              ? "fill-amber-400 dark:fill-amber-600 text-amber-400 dark:text-amber-600"
+                              : "text-muted-foreground"
                           }`}
                         />
                       ))}

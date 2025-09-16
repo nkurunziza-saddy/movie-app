@@ -17,6 +17,7 @@ import { auth } from "@/lib/auth";
 import { Search } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
+import CreateDialogs from "./navbar-components/create-dialogs";
 
 const navigationLinks = [
   { href: "/activity", label: "Activity" },
@@ -106,7 +107,7 @@ export default async function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <InfoMenu />
-              {/* <NotificationMenu /> */}
+              <CreateDialogs />
             </div>
             <UserMenu user={session.user} />
           </div>

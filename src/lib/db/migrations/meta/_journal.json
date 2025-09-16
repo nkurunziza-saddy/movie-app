@@ -8,6 +8,20 @@
       "when": 1757597822688,
       "tag": "0000_glorious_quasimodo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758034519522,
+      "tag": "0001_silent_stick",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758043615246,
+      "tag": "0002_high_madame_web",
+      "breakpoints": true
     }
   ]
 }
