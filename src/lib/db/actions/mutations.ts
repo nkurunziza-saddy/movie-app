@@ -56,7 +56,7 @@ export async function createMovie(data: {
 }
 
 export async function createSeason(data: {
-  contentId: string;
+  tvShowId: string;
   seasonNumber: number;
   title: string;
 }) {
@@ -92,6 +92,6 @@ export async function createEpisode(data: {
 
   return await db
     .insert(episodesTable)
-    .values({ ...data, contentId: season.contentId })
+    .values({ ...data, seasonId: season.id })
     .returning();
 }

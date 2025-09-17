@@ -18,22 +18,32 @@ export function BookmarkButton({ movieId, className }: BookmarkButtonProps) {
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (session) {
-      checkBookmarkStatus();
+    if (!session) {
+      setIsBookmarked(false);
+      return;
     }
-  }, [session, movieId]);
 
-  const checkBookmarkStatus = async () => {
-    try {
-      const response = await fetch(`/api/bookmarks/check/${movieId}`);
-      if (response.ok) {
-        const { isBookmarked } = await response.json();
-        setIsBookmarked(isBookmarked);
+    let isMounted = true;
+
+    const checkBookmarkStatus = async () => {
+      try {
+        const response = await fetch(`/api/bookmarks/check/${movieId}`);
+        if (response.ok) {
+          const { isBookmarked } = await response.json();
+          if (isMounted) setIsBookmarked(!!isBookmarked);
+        }
+      } catch (error) {
+        if (isMounted) setIsBookmarked(false);
+        console.error("Error checking bookmark status:", error);
       }
-    } catch (error) {
-      console.error("Error checking bookmark status:", error);
-    }
-  };
+    };
+
+    checkBookmarkStatus();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session, movieId]);
 
   const toggleBookmark = async () => {
     if (!session) {
