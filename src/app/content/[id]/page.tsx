@@ -1,4 +1,3 @@
-import { getContentWithDetails } from "@/lib/actions/content-complex-filtering-action";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Share, Download, Book } from "lucide-react";
@@ -9,6 +8,8 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { BookmarkButton } from "@/components/bookmark-button";
 import { checkBookmark } from "@/lib/actions/bookmarks-action";
+import { getContentWithDetails } from "@/lib/actions/content-query-action";
+import { ContentViewer } from "@/components/content-components/content-viewer";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
@@ -64,50 +65,18 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
         </nav>
       </div>
 
-      <div className="relative h-[80vh] mx-2 sm:mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="absolute inset-0">
-          <Image
-            src={content.posterUrl || "/placeholder.svg"}
-            alt={content.title}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-background/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
-        </div>
-
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-4xl px-8 lg:px-16">
-            <div className="max-w-2xl space-y-6">
-              <h1 className="text-xl sm:text-4xl lg:text-6xl font-black text-foreground leading-tight tracking-tight">
-                {content.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <span className="text-muted-foreground">
-                  {content.releaseYear}
-                </span>
-                <Badge variant="outline" className="text-xs">
-                  {content.contentType === "tv" ? "TV Show" : "Movie"}
-                </Badge>
-              </div>
-
-              <p className="text-muted-foreground text-base lg:text-lg leading-relaxed max-w-xl">
-                {content.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {content.genre?.slice(0, 3).map((genre) => (
-                  <Badge key={genre} variant="secondary" className="text-xs">
-                    {genre}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ContentViewer
+        content={{
+          contentType: content.contentType,
+          description: content.description || "No description available.",
+          genre: content.genre ? content.genre : [],
+          id: content.id,
+          posterUrl: content.posterUrl || "/placeholder.svg",
+          releaseYear: content.releaseYear || new Date().getFullYear(),
+          title: content.title,
+          trailerUrl: content.trailerUrl || undefined,
+        }}
+      />
 
       <div id="download" className="max-w-4xl md:px-8 lg:px-16 py-4 md:py-12">
         <div className="flex flex-wrap items-center gap-4">

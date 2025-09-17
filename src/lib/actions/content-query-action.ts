@@ -17,6 +17,7 @@ export const getContentWithDetails = async (id: string) => {
           id: true,
           createdAt: true,
           rating: true,
+          userId: true,
           reviewText: true,
         },
         with: {

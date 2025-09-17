@@ -12,27 +12,20 @@ import {
   getRecentMovies,
   getRecentTv,
 } from "@/lib/actions/content-query-action";
+import {
+  FeaturedCarousel,
+  FeaturedCarouselSkeleton,
+} from "@/components/content-components/featured-carousel";
 
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   return (
     <main className="">
-      <div className="border-b border-border/40 bg-background/95 backdrop-blur">
-        <div className="py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-mono font-medium text-foreground">
-                Home
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Browse and download your favorite movies
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="py-8 space-y-8">
+        <Suspense fallback={<FeaturedCarouselSkeleton />}>
+          <FeatureCatalogServer />
+        </Suspense>
+
         <SearchAndFilters />
 
         <Suspense fallback={<ContentCatalogSkeleton />}>
@@ -57,6 +50,13 @@ export default async function Home(props: PageProps<"/">) {
       </div>
     </main>
   );
+}
+
+async function FeatureCatalogServer() {
+  const featuredContent = await getPopularMovies(3);
+
+  if (featuredContent.length === 0) return null;
+  return <FeaturedCarousel featuredContent={featuredContent} />;
 }
 
 async function HomeCatalog({
