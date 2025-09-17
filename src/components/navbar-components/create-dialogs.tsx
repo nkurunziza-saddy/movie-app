@@ -18,6 +18,7 @@ import {
 import { CreateMovieForm } from "../forms/create-movie-form";
 import { CreateSeasonForm } from "../forms/create-season-form";
 import { CreateEpisodeForm } from "../forms/create-episode-form";
+import { CreateTvShowForm } from "../forms/create-tv-show-form";
 
 export default function CreateDialogs() {
   return (
@@ -84,7 +85,7 @@ export default function CreateDialogs() {
                 Enter the details for the new episode.
               </DialogDescription>
             </DialogHeader>
-            <CreateEpisodeForm />
+            <CreateTvShowForm />
           </DialogContent>
         </Dialog>
       </DropdownMenuContent>
