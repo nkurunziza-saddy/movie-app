@@ -4,13 +4,13 @@ import { headers } from "next/headers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Bookmark, Star, Calendar } from "lucide-react";
-import { getUserBookmarks } from "@/lib/db/actions/queries/basic";
+import { getUserBookmarks } from "@/lib/actions/queries/basic";
 import Link from "next/link";
 import Image from "next/image";
 import {
   getUserRecentDownloads,
   getUserStats,
-} from "@/lib/db/actions/queries/statistical";
+} from "@/lib/actions/queries/statistical";
 
 export default async function ActivityPage() {
   const session = await auth.api.getSession({

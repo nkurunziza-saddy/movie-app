@@ -376,3 +376,7 @@ export type ContentWithDetails = ContentInterface & {
 export type SeasonWithEpisodes = SeasonInterface & {
   episodes: EpisodeInterface[];
 };
+
+export type BookmarksWithContent = BookmarkInterface & {
+  content: ContentInterface;
+};

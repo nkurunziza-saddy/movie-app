@@ -1,18 +1,19 @@
-import { getContentWithDetails } from "@/lib/db/actions/queries/basic";
+import { getContentWithDetails } from "@/lib/actions/queries/basic";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Share, Download } from "lucide-react";
+import { Share, Download, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ReviewSection } from "@/components/review-section";
 import Link from "next/link";
 import { format } from "date-fns";
+import { BookmarkButton } from "@/components/bookmark-button";
+import { checkBookmark } from "@/lib/actions/mutations/bookmarks";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
-  console.log({ id });
+  const isBookmarked = await checkBookmark(id);
   const content = await getContentWithDetails(id);
-  console.log({ content });
   if (!content) {
     notFound();
   }
@@ -147,9 +148,10 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
           )}
 
           <Button variant="outline" size="sm">
-            <Share className="size-4 mr-2" />
+            <Share className="size-4 mr-1" />
             Share
           </Button>
+          <BookmarkButton isBookmarked={isBookmarked} contentId={content.id} />
         </div>
       </div>
 

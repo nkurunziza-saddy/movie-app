@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, signOut } from "@/lib/auth/auth-client";
 import { User, LogOut, Bookmark, Download, Crown } from "lucide-react";
 import Link from "next/link";
 

@@ -27,7 +27,7 @@ import {
   SearchSelectValue,
 } from "@/components/ui/search-select";
 import { useQuery } from "@tanstack/react-query";
-import { getTvShows } from "@/lib/db/actions/queries/basic";
+import { getTvShows } from "@/lib/actions/queries/basic";
 import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TvShowInterface } from "@/lib/db/schema";

@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "../../index";
+import { db } from "../../db/index";
 import {
   contentTable,
   reviewsTable,
@@ -8,7 +8,7 @@ import {
   moviesTable,
   seasonsTable,
   tvShowsTable,
-} from "../../schema";
+} from "../../db/schema";
 import { eq, desc, sql, and, SQL, ilike, or, asc } from "drizzle-orm";
 
 export const getContent = async (

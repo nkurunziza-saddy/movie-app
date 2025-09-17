@@ -22,7 +22,7 @@ import {
   getDashboardStats,
   getRecentContent,
   getPopularContent,
-} from "@/lib/db/actions/queries/statistical";
+} from "@/lib/actions/queries/statistical";
 import { format } from "date-fns";
 
 export default function DashboardPage() {

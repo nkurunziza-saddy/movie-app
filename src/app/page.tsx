@@ -4,7 +4,7 @@ import {
   ContentCatalogSkeleton,
 } from "@/components/content-components/content-catalog";
 import { SearchAndFilters } from "@/components/content-components/search-and-filters";
-import { getContent } from "@/lib/db/actions/queries/basic";
+import { getContent } from "@/lib/actions/queries/basic";
 import { Separator } from "@/components/ui/separator";
 
 export default async function Home(props: PageProps<"/">) {

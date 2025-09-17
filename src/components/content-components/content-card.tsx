@@ -3,12 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type ContentInterface } from "@/lib/db/schema";
+import { Bookmark } from "lucide-react";
 
 interface ContentCardProps {
   content: ContentInterface;
+  isBookmark?: boolean;
 }
 
-export function ContentCard({ content }: ContentCardProps) {
+export function ContentCard({ content, isBookmark = false }: ContentCardProps) {
   return (
     <div className=" relative border border-border/40 rounded-lg overflow-hidden bg-card/50">
       <Link className="absolute inset-0 z-10" href={`/content/${content.id}`} />
@@ -21,6 +23,15 @@ export function ContentCard({ content }: ContentCardProps) {
           className="object-cover w-full h-full"
         />
       </div>
+
+      {isBookmark && (
+        <Link
+          href={`/content/${content.id}#download`}
+          className="absolute top-2 right-2 bg-background/70 backdrop-blur rounded-md p-1 z-20"
+        >
+          <Bookmark className="w-4 h-4 text-foreground" />
+        </Link>
+      )}
 
       <div className="p-1.5 space-y-0.5">
         <div className="font-medium text-xs leading-tight">{content.title}</div>

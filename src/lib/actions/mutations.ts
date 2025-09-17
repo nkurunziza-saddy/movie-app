@@ -1,11 +1,11 @@
-import { db } from "../index";
+import { db } from "../db";
 import {
   contentTable,
   moviesTable,
   seasonsTable,
   episodesTable,
-} from "../schema";
-import { getServerSession } from "./session";
+} from "../db/schema";
+import { getServerSession } from "../auth/server";
 
 export async function createMovie(data: {
   title: string;
@@ -14,7 +14,6 @@ export async function createMovie(data: {
   releaseYear: number;
   trailerUrl?: string;
   durationMinutes: number;
-  quality: "720p" | "1080p" | "4K";
   posterUrl: string;
   backdropUrl?: string;
   movieFileUrl: string;
@@ -73,7 +72,6 @@ export async function createEpisode(data: {
   episodeNumber: number;
   title: string;
   durationMinutes: number;
-  quality: "720p" | "1080p" | "4K";
   videoFileUrl: string;
   fileSizeMb: number;
 }) {

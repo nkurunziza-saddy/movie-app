@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getPopularContent } from "@/lib/db/actions/queries/statistical";
+import { getPopularContent } from "@/lib/actions/queries/statistical";
 import {
   ContentCatalog,
   ContentCatalogSkeleton,

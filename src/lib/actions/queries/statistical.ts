@@ -7,8 +7,8 @@ import {
   downloadsTable,
   reviewsTable,
   usersTable,
-} from "../../schema";
-import { db } from "../..";
+} from "../../db/schema";
+import { db } from "../../db";
 
 export const getUserRecentDownloads = async (userId: string, limit = 5) => {
   return await db.query.downloadsTable.findMany({

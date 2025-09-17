@@ -9,7 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { useState } from "react";
-import { signIn, useSession } from "@/lib/auth-client";
+import { signIn, useSession } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
 import { LoaderIcon } from "lucide-react";
 import { redirect } from "next/navigation";

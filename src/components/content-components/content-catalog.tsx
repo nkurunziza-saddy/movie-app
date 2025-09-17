@@ -3,13 +3,17 @@ import { type ContentInterface } from "@/lib/db/schema";
 
 interface ContentCatalogProps {
   contents: ContentInterface[];
+  isBookmark?: boolean;
 }
 
-export function ContentCatalog({ contents }: ContentCatalogProps) {
+export function ContentCatalog({
+  contents,
+  isBookmark = false,
+}: ContentCatalogProps) {
   return (
     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2">
       {contents.map((ct) => (
-        <ContentCard key={ct.id} content={ct} />
+        <ContentCard key={ct.id} content={ct} isBookmark={isBookmark} />
       ))}
     </div>
   );

@@ -14,7 +14,7 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { getSeasons } from "@/lib/db/actions/queries/basic";
+import { getSeasons } from "@/lib/actions/queries/basic";
 import { episodeSchema } from "@/lib/form-schema";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
