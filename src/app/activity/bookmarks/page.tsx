@@ -4,7 +4,7 @@ import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { requireAuth } from "@/lib/auth/server";
-import { getBookmarks } from "@/lib/actions/mutations/bookmarks";
+import { getBookmarks } from "@/lib/actions/bookmarks-action";
 import {
   ContentCatalog,
   ContentCatalogSkeleton,

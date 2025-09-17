@@ -51,15 +51,6 @@ export async function checkBookmark(contentId: string) {
   return !!existing;
 }
 
-export async function getBookmarkCount(userId: string) {
-  const [bookmarkCount] = await db
-    .select({ count: count() })
-    .from(bookmarksTable)
-    .where(eq(bookmarksTable.userId, userId));
-
-  return bookmarkCount;
-}
-
 export async function getBookmarks(userId: string, limit?: number) {
   return await db.query.bookmarksTable.findMany({
     where: (bookmarksTable, { eq }) => eq(bookmarksTable.userId, userId),
@@ -85,4 +76,13 @@ export async function getBookmarkByContentId(
       content: true,
     },
   });
+}
+
+export async function getBookmarkCount(userId: string) {
+  const [bookmarkCount] = await db
+    .select({ count: count() })
+    .from(bookmarksTable)
+    .where(eq(bookmarksTable.userId, userId));
+
+  return bookmarkCount;
 }

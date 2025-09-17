@@ -12,7 +12,7 @@ interface ContentCardProps {
 
 export function ContentCard({ content, isBookmark = false }: ContentCardProps) {
   return (
-    <div className=" relative border border-border/40 rounded-lg overflow-hidden bg-card/50">
+    <div className=" relative border border-border/40 rounded-md overflow-hidden bg-card/50">
       <Link className="absolute inset-0 z-10" href={`/content/${content.id}`} />
       <div className="relative aspect-[2/3] overflow-hidden bg-muted/30">
         <Image

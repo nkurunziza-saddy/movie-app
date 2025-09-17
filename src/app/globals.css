@@ -77,6 +77,9 @@
 }
 
 @layer base {
+  html {
+    overflow-y: scroll;
+  }
   * {
     @apply border-border outline-ring/50;
     scroll-behavior: smooth;
@@ -87,5 +90,23 @@
   }
   .transition-smooth {
     @apply transition-all duration-200 ease-out;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
   }
 }

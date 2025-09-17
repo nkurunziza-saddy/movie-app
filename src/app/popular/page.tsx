@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import { getPopularContent } from "@/lib/actions/queries/statistical";
 import {
   ContentCatalog,
   ContentCatalogSkeleton,
 } from "@/components/content-components/content-catalog";
+import { getPopularContent } from "@/lib/actions/content-complex-filtering-action";
 
 export default async function PopularPage() {
   return (

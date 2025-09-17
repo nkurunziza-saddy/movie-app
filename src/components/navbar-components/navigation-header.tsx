@@ -13,22 +13,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { auth } from "@/lib/auth";
 import { Search } from "lucide-react";
-import { headers } from "next/headers";
 import Link from "next/link";
 import CreateDialogs from "./create-dialogs";
+import { getServerSession } from "@/lib/auth/server";
 
 const navigationLinks = [
-  { href: "/activity", label: "Activity" },
-  { href: "/activity/settings", label: "Settings" },
-  { href: "/activity/bookmarks", label: "Bookmarks" },
+  { href: "/", label: "home" },
+  { href: "/popular", label: "popular" },
+  { href: "/activity/bookmarks", label: "bookmarks" },
 ];
 
 export default async function Header() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
   return (
     <header className="border-b ">
       <div className="flex h-16 items-center justify-between gap-4 container mx-auto px-4">

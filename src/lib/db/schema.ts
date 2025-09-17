@@ -198,8 +198,6 @@ export const reviewsTable = pgTable(
     contentId: text("content_id")
       .references(() => contentTable.id)
       .notNull(),
-    seasonId: text("season_id").references(() => seasonsTable.id),
-    episodeId: text("episode_id").references(() => episodesTable.id),
     rating: integer("rating").notNull(),
     reviewText: text("review_text"),
     createdAt: timestamp("created_at").defaultNow(),
@@ -278,7 +276,6 @@ export const seasonsRelations = relations(seasonsTable, ({ one, many }) => ({
     references: [tvShowsTable.id],
   }),
   episodes: many(episodesTable),
-  reviews: many(reviewsTable),
 }));
 
 export const episodesRelations = relations(episodesTable, ({ one, many }) => ({
@@ -286,7 +283,6 @@ export const episodesRelations = relations(episodesTable, ({ one, many }) => ({
     fields: [episodesTable.seasonId],
     references: [seasonsTable.id],
   }),
-  reviews: many(reviewsTable),
   downloads: many(downloadsTable),
 }));
 
@@ -314,14 +310,6 @@ export const reviewsRelations = relations(reviewsTable, ({ one }) => ({
   content: one(contentTable, {
     fields: [reviewsTable.contentId],
     references: [contentTable.id],
-  }),
-  season: one(seasonsTable, {
-    fields: [reviewsTable.seasonId],
-    references: [seasonsTable.id],
-  }),
-  episode: one(episodesTable, {
-    fields: [reviewsTable.episodeId],
-    references: [episodesTable.id],
   }),
 }));
 

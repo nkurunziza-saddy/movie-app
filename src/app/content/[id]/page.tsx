@@ -1,4 +1,4 @@
-import { getContentWithDetails } from "@/lib/actions/queries/basic";
+import { getContentWithDetails } from "@/lib/actions/content-complex-filtering-action";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Share, Download, Book } from "lucide-react";
@@ -8,7 +8,7 @@ import { ReviewSection } from "@/components/review-section";
 import Link from "next/link";
 import { format } from "date-fns";
 import { BookmarkButton } from "@/components/bookmark-button";
-import { checkBookmark } from "@/lib/actions/mutations/bookmarks";
+import { checkBookmark } from "@/lib/actions/bookmarks-action";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;

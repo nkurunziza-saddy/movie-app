@@ -2,7 +2,7 @@ import {
   checkBookmark,
   getBookmarkCount,
   toggleBookmark,
-} from "@/lib/actions/mutations/bookmarks";
+} from "@/lib/actions/bookmarks-action";
 import { useSession } from "@/lib/auth/auth-client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -40,8 +40,8 @@ export function useToggleBookmark() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmark-count"] });
-      queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      queryClient.invalidateQueries({ queryKey: ["bookmark-status"] });
     },
   });
 }

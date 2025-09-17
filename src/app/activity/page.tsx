@@ -1,21 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Bookmark, Star, Calendar } from "lucide-react";
-import { getUserBookmarks } from "@/lib/actions/queries/basic";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  getUserRecentDownloads,
-  getUserStats,
-} from "@/lib/actions/queries/statistical";
+import { getUserStats } from "@/lib/actions/stats-query-action";
 import { requireAuth } from "@/lib/auth/server";
+import { getBookmarks } from "@/lib/actions/bookmarks-action";
 
 export default async function ActivityPage() {
   const session = await requireAuth();
   const [stats, recentDownloads, bookmarks] = await Promise.all([
     getUserStats(session.user.id),
-    getUserRecentDownloads(session.user.id, 5),
-    getUserBookmarks(session.user.id, 6),
+    [],
+    getBookmarks(session.user.id, 9),
   ]);
 
   return (
@@ -36,7 +33,6 @@ export default async function ActivityPage() {
       </div>
 
       <div className="py-8 space-y-8">
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="px-2">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -70,7 +66,6 @@ export default async function ActivityPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Downloads */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Recent Downloads</CardTitle>
@@ -85,7 +80,7 @@ export default async function ActivityPage() {
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {recentDownloads.map((download) => {
+                  {(recentDownloads as any[]).map((download) => {
                     if (!download.content) return null;
                     return (
                       <div
@@ -127,7 +122,6 @@ export default async function ActivityPage() {
             </CardContent>
           </Card>
 
-          {/* Bookmarked Movies */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Bookmarked Movies</CardTitle>
@@ -141,7 +135,7 @@ export default async function ActivityPage() {
                   No bookmarks yet
                 </p>
               ) : (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-6 lg:grid-cols-9 gap-1">
                   {bookmarks.map((bookmark) => {
                     if (!bookmark.content) return null;
                     return (
@@ -150,10 +144,10 @@ export default async function ActivityPage() {
                         href={`/content/${bookmark.content?.id}`}
                         className="group"
                       >
-                        <div className="relative overflow-hidden rounded-lg">
+                        <div className="relative overflow-hidden rounded-md">
                           <Image
-                            width={150}
-                            height={200}
+                            width={100}
+                            height={100}
                             src={
                               bookmark.content?.posterUrl ||
                               `/placeholder.svg?height=200&width=150&query=${encodeURIComponent(
@@ -161,7 +155,7 @@ export default async function ActivityPage() {
                               )}`
                             }
                             alt={bookmark.content?.title}
-                            className="w-full h-32 object-cover group-hover:scale-105 transition-transform"
+                            className="object-cover w-full h-full"
                           />
                           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <span className="text-foreground text-sm font-medium text-center px-2">

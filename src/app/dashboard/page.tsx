@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CreateDialogsInline } from "@/components/navbar-components/create-dialogs";
-import {
-  getDashboardStats,
-  getRecentContent,
-  getPopularContent,
-} from "@/lib/actions/queries/statistical";
+import { getDashboardStats } from "@/lib/actions/stats-query-action";
 import { format } from "date-fns";
+import {
+  getPopularContent,
+  getRecentContent,
+} from "@/lib/actions/content-complex-filtering-action";
 
 export default function DashboardPage() {
   const { data: stats, isLoading: isLoadingStats } = useQuery({

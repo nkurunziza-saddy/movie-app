@@ -29,7 +29,7 @@ export function BookmarkButton({
     try {
       const result = await toggleBookmark.mutateAsync(contentId);
 
-      toast(result ? "Bookmarked!" : "Bookmark removed", {
+      toast(result ? "Bookmarked!" : "Bookmark removed!", {
         description: result
           ? "This movie has been added to your list."
           : "This movie has been removed from your list.",

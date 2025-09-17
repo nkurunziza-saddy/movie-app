@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Download } from "lucide-react";
-import { getUserDownloads } from "@/lib/actions/queries/basic";
 import Link from "next/link";
 import Image from "next/image";
 import { requireAuth } from "@/lib/auth/server";
@@ -10,7 +9,7 @@ import { requireAuth } from "@/lib/auth/server";
 export default async function DownloadsPage() {
   const session = await requireAuth();
 
-  const downloads = await getUserDownloads(session.user.id);
+  const downloads: any[] = [];
 
   return (
     <div className="">
