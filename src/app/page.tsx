@@ -11,12 +11,12 @@ export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   return (
     <main className="">
-      <div className="border-b border-border/40 bg-background/95 backdrop-blur">
+      {/* <div className="border-b border-border/40 bg-background/95 backdrop-blur">
         <div className="py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-lg font-mono font-medium text-foreground">
-                Discover Movies
+                Home
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Browse and download your favorite movies
@@ -24,7 +24,7 @@ export default async function Home(props: PageProps<"/">) {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="py-8 space-y-8">
         <SearchAndFilters />

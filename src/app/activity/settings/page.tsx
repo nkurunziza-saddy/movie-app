@@ -1,19 +1,11 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { requireAuth } from "@/lib/auth/server";
 
 export default async function SettingsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/auth/signin");
-  }
+  const session = await requireAuth();
 
   return (
     <div className="">
@@ -73,7 +65,9 @@ export default async function SettingsPage() {
           {/* Account Security */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">Security</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Security
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 border rounded-lg">

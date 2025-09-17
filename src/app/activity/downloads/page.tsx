@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,15 +5,10 @@ import { Calendar, Download } from "lucide-react";
 import { getUserDownloads } from "@/lib/actions/queries/basic";
 import Link from "next/link";
 import Image from "next/image";
+import { requireAuth } from "@/lib/auth/server";
 
 export default async function DownloadsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/auth/signin");
-  }
+  const session = await requireAuth();
 
   const downloads = await getUserDownloads(session.user.id);
 

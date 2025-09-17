@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Bookmark, Star, Calendar } from "lucide-react";
@@ -11,15 +8,10 @@ import {
   getUserRecentDownloads,
   getUserStats,
 } from "@/lib/actions/queries/statistical";
+import { requireAuth } from "@/lib/auth/server";
 
 export default async function ActivityPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session) {
-    redirect("/auth/signin");
-  }
-
+  const session = await requireAuth();
   const [stats, recentDownloads, bookmarks] = await Promise.all([
     getUserStats(session.user.id),
     getUserRecentDownloads(session.user.id, 5),
