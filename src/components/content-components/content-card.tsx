@@ -22,7 +22,7 @@ export function ContentCard({ content }: ContentCardProps) {
         />
       </div>
 
-      <div className="p-2 space-y-1">
+      <div className="p-1.5 space-y-0.5">
         <div className="font-medium text-xs leading-tight">{content.title}</div>
         <div className="flex gap-2">
           <div className="text-xs text-muted-foreground">

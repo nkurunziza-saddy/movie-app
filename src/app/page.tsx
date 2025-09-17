@@ -1,6 +1,11 @@
 import { Suspense } from "react";
-import { ContentCatalog } from "@/components/content-catalog";
-import { SearchAndFilters } from "@/components/search-and-filters";
+import {
+  ContentCatalog,
+  ContentCatalogSkeleton,
+} from "@/components/content-components/content-catalog";
+import { SearchAndFilters } from "@/components/content-components/search-and-filters";
+import { getContent } from "@/lib/db/actions/queries/basic";
+import { Separator } from "@/components/ui/separator";
 
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
@@ -25,23 +30,23 @@ export default async function Home(props: PageProps<"/">) {
         <SearchAndFilters />
 
         <Suspense fallback={<ContentCatalogSkeleton />}>
-          <ContentCatalog searchParams={searchParams} />
+          <HomeCatalog searchParams={searchParams} />
         </Suspense>
       </div>
     </main>
   );
 }
 
-function ContentCatalogSkeleton() {
+async function HomeCatalog({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const content = await getContent(searchParams);
   return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="space-y-3">
-          <div className="aspect-[2/3] bg-muted rounded-md animate-pulse" />
-          <div className="h-4 bg-muted rounded animate-pulse" />
-          <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
-        </div>
-      ))}
+    <div className="space-y-6">
+      <Separator />
+      <ContentCatalog contents={content} />
     </div>
   );
 }

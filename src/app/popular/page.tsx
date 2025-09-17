@@ -1,6 +1,9 @@
 import { Suspense } from "react";
-import { ContentCard } from "@/components/content-card";
 import { getPopularContent } from "@/lib/db/actions/queries/statistical";
+import {
+  ContentCatalog,
+  ContentCatalogSkeleton,
+} from "@/components/content-components/content-catalog";
 
 export default async function PopularPage() {
   return (
@@ -22,34 +25,14 @@ export default async function PopularPage() {
 
       <div className="py-8">
         <Suspense fallback={<ContentCatalogSkeleton />}>
-          <ContentCatalog />
+          <PopularCatalog />
         </Suspense>
       </div>
     </main>
   );
 }
 
-async function ContentCatalog() {
+async function PopularCatalog() {
   const content = await getPopularContent();
-  return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
-      {content.map((ct) => (
-        <ContentCard key={ct.id} content={ct} />
-      ))}
-    </div>
-  );
-}
-
-function ContentCatalogSkeleton() {
-  return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-6">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="space-y-3">
-          <div className="aspect-[2/3] bg-muted rounded-lg animate-pulse" />
-          <div className="h-4 bg-muted rounded animate-pulse" />
-          <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
-        </div>
-      ))}
-    </div>
-  );
+  return <ContentCatalog contents={content} />;
 }
