@@ -7,12 +7,13 @@ import { getUserStats } from "@/lib/actions/stats-query-action";
 import { requireAuth } from "@/lib/auth/server";
 import { getBookmarks } from "@/lib/actions/bookmarks-action";
 import { R2Image } from "@/components/r2-image";
+import { getDownloadHistory } from "@/lib/actions/download-action";
 
 export default async function ActivityPage() {
   const session = await requireAuth();
   const [stats, recentDownloads, bookmarks] = await Promise.all([
     getUserStats(session.user.id),
-    [],
+    getDownloadHistory(),
     getBookmarks(session.user.id, 9),
   ]);
 
@@ -81,25 +82,21 @@ export default async function ActivityPage() {
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {(recentDownloads as any[]).map((download) => {
+                  {recentDownloads.map((download) => {
                     if (!download.content) return null;
                     return (
                       <div
                         key={download.id}
                         className="flex items-center gap-3 p-3 border rounded-lg"
                       >
-                        <Image
+                        <R2Image
                           width={40}
                           height={60}
-                          src={
-                            download.content?.posterUrl ||
-                            `/placeholder.svg?height=60&width=40&query=${encodeURIComponent(
-                              download.content?.title ?? ""
-                            )}`
-                          }
-                          alt={download.content?.title}
-                          className="w-10 h-15 rounded object-cover"
+                          objectKey={download.content?.posterKey}
+                          alt={download.content?.title ?? "Content image"}
+                          className="object-cover w-full h-full"
                         />
+
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium truncate">
                             {download.content?.title}
@@ -147,8 +144,8 @@ export default async function ActivityPage() {
                       >
                         <div className="relative overflow-hidden rounded-md">
                           <R2Image
-                            width={100}
-                            height={100}
+                            width={40}
+                            height={60}
                             objectKey={bookmark.content?.posterKey}
                             alt={bookmark.content?.title ?? "Content image"}
                             className="object-cover w-full h-full"

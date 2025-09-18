@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import CreateDialogs from "./create-dialogs";
+import CreateFormQuickLinks from "./quick-create-links";
 import { getServerSession } from "@/lib/auth/server";
 
 const navigationLinks = [
@@ -104,7 +104,7 @@ export default async function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <InfoMenu />
-              <CreateDialogs />
+              <CreateFormQuickLinks />
             </div>
             <UserMenu user={session.user} />
           </div>

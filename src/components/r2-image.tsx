@@ -20,7 +20,6 @@ export function R2Image({ objectKey, alt, ...props }: R2ImageProps) {
     enabled: !!objectKey,
     staleTime: 1000 * 60 * 50,
   });
-  console.log({ key: src });
   if (isLoading) {
     return <Skeleton className="w-full h-full" />;
   }

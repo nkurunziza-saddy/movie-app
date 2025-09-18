@@ -1,16 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Download } from "lucide-react";
+import { Calendar } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { requireAuth } from "@/lib/auth/server";
 import { R2Image } from "@/components/r2-image";
+import { getDownloadHistory } from "@/lib/actions/download-action";
 
 export default async function DownloadsPage() {
-  const session = await requireAuth();
+  await requireAuth();
 
-  const downloads: any[] = [];
+  const downloads = await getDownloadHistory();
 
   return (
     <div className="">
@@ -32,9 +31,7 @@ export default async function DownloadsPage() {
       <div className="py-8">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Downloads ({downloads.length})
-            </CardTitle>
+            <CardTitle className="flex items-center gap-2">Downloads</CardTitle>
           </CardHeader>
           <CardContent>
             {downloads.length === 0 ? (

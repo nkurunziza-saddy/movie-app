@@ -65,7 +65,7 @@ export function ContentViewer({ content }: ContentViewerProps) {
             )}
           >
             <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=${youtubeId}`}
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=${youtubeId}`}
               title={`${content.title} Trailer`}
               className="w-full h-full"
               allow="autoplay; encrypted-media;"

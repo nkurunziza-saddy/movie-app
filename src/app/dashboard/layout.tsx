@@ -1,5 +1,10 @@
 import { ReactNode } from "react";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
-  return <div className="">{children}</div>;
+export default function DashboardLayout(props: LayoutProps<"/dashboard">) {
+  return (
+    <>
+      {props.children}
+      {props.modal}
+    </>
+  );
 }

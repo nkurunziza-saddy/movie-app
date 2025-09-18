@@ -17,13 +17,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { CreateDialogsInline } from "@/components/navbar-components/create-dialogs";
 import { getDashboardStats } from "@/lib/actions/stats-query-action";
 import { format } from "date-fns";
 import {
   getPopularContent,
   getRecentContent,
 } from "@/lib/actions/content-complex-filtering-action";
+import { FORMS_DETAILS } from "@/lib/helpers/render-form-dynamically";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const { data: stats, isLoading: isLoadingStats } = useQuery({
@@ -58,7 +60,22 @@ export default function DashboardPage() {
                 Overview of your content library and performance.
               </p>
             </div>
-            <CreateDialogsInline />
+            <div className="flex gap-1">
+              {[
+                FORMS_DETAILS.map((l) => (
+                  <Link
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                    })}
+                    href={`/create/${l.name}`}
+                    key={l.title}
+                  >
+                    {l.title}
+                  </Link>
+                )),
+              ]}
+            </div>
           </div>
         </div>
       </div>

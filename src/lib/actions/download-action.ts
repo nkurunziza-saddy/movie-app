@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { downloadsTable, moviesTable, episodesTable } from "@/lib/db/schema";
 import { requireAuth } from "@/lib/auth/server";
 import { getPresignedUrl } from "./r2-actions";
-import { and, eq, desc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 interface DownloadActionProps {
   movieId?: string;
@@ -96,7 +96,7 @@ export async function getDownloadHistory() {
       content: true,
     },
     orderBy: (downloads, { desc }) => [desc(downloads.downloadDate)],
-    limit: 30,
+    limit: 5,
   });
   return downloads;
 }

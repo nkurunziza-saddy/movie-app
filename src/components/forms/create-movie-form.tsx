@@ -110,10 +110,7 @@ export function CreateMovieForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Create Movie</CardTitle>
-            <FormDescription>
-              Fill out the details below to add a new movie.
-            </FormDescription>
+            <CardTitle className="text-sm font-mono">Movie details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
