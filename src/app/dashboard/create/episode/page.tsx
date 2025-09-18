@@ -1,4 +1,4 @@
-import { CreateEpisodeForm } from "@/components/forms/create-episode-form";
+import { AddEpisodeForm } from "@/components/forms/add-episode-form";
 
 export default function CreateEpisodePage() {
   return (
@@ -18,7 +18,7 @@ export default function CreateEpisodePage() {
         </div>
       </div>
       <div className="py-8">
-        <CreateEpisodeForm />
+        <AddEpisodeForm />
       </div>
     </div>
   );

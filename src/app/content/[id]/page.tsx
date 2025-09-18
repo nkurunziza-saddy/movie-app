@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { Share, Download, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ReviewSection } from "@/components/review-section";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -10,6 +8,7 @@ import { BookmarkButton } from "@/components/bookmark-button";
 import { checkBookmark } from "@/lib/actions/bookmarks-action";
 import { getContentWithDetails } from "@/lib/actions/content-query-action";
 import { ContentViewer } from "@/components/content-components/content-viewer";
+import { DownloadButton } from "@/components/download-button";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
@@ -71,23 +70,17 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
           description: content.description || "No description available.",
           genre: content.genre ? content.genre : [],
           id: content.id,
-          posterUrl: content.posterUrl || "/placeholder.svg",
+          posterUrl: content.posterKey ?? "",
           releaseYear: content.releaseYear || new Date().getFullYear(),
           title: content.title,
-          trailerUrl: content.trailerUrl || undefined,
+          trailerUrl: content.trailerKey || undefined,
         }}
       />
 
       <div id="download" className="max-w-4xl md:px-8 lg:px-16 py-4 md:py-12">
         <div className="flex flex-wrap items-center gap-4">
           {content.contentType === "movie" ? (
-            <Button
-              size={"sm"}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8"
-            >
-              <Download className="size-4 mr-2" />
-              Download Movie
-            </Button>
+            <DownloadButton movieId={movie.id} size={"sm"} />
           ) : (
             <div className="grid gap-4 w-full">
               <h3 className="text-xl font-semibold mb-4">Episodes</h3>
@@ -105,9 +98,9 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                             {episode.description}
                           </p>
                         </div>
-                        <Button size="sm">
+                        <DownloadButton episodeId={episode.id} size={"sm"}>
                           <Download className="h-4 w-4" />
-                        </Button>
+                        </DownloadButton>
                       </div>
                     </div>
                   ))

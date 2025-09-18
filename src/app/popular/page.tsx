@@ -15,9 +15,9 @@ export default async function PopularPage() {
               <h1 className="text-lg font-mono font-medium text-foreground">
                 Popular
               </h1>
-              {/* <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Browse and download your favorite content
-              </p> */}
+              </p>
             </div>
           </div>
         </div>

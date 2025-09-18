@@ -46,7 +46,6 @@ async function BookmarksCatalog() {
       <Card>
         <CardContent>
           <div className="text-center py-8">
-            <Bookmark className="size-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">No bookmarks yet</p>
             <Button asChild className="mt-4">
               <Link href="/">Browse Movies</Link>

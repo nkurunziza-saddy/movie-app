@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { R2Image } from "../r2-image";
 
 interface ContentViewerProps {
   content: {
@@ -46,8 +47,8 @@ export function ContentViewer({ content }: ContentViewerProps) {
       {!showTrailer ? (
         <>
           <div className="absolute inset-0">
-            <Image
-              src={content.posterUrl || "/placeholder.svg"}
+            <R2Image
+              objectKey={content.posterUrl}
               alt={content.title}
               fill
               className="object-cover"

@@ -5,6 +5,7 @@ import { ContentInterface } from "@/lib/db/schema";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
+import { R2Image } from "../r2-image";
 
 interface FeatureCarouselProps {
   featuredContent: ContentInterface[];
@@ -30,9 +31,9 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
     <div className="relative w-full h-[63vh] overflow-hidden rounded-lg bg-background">
       <div className="absolute inset-0">
         {featuredContent.map((content, index) => (
-          <Image
+          <R2Image
             key={content.id}
-            src={content.posterUrl || "/placeholder.svg"}
+            objectKey={content.posterKey}
             alt={content.title}
             fill
             className={cn(

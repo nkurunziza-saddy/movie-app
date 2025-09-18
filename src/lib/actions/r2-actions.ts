@@ -1,0 +1,21 @@
+"use server";
+
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { R2 } from "@/lib/r2";
+
+export async function getPresignedUrl(key: string): Promise<string> {
+  const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME;
+  if (!R2_BUCKET_NAME) {
+    throw new Error("R2_BUCKET_NAME is not set in .env file");
+  }
+
+  const command = new GetObjectCommand({
+    Bucket: R2_BUCKET_NAME,
+    Key: key,
+  });
+
+  const signedUrl = await getSignedUrl(R2, command, { expiresIn: 3600 });
+
+  return signedUrl;
+}

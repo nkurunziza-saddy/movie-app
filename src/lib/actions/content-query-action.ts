@@ -1,7 +1,15 @@
 "use server";
 import { db } from "../db/index";
 import { seasonsTable } from "../db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
+
+export async function getSeasonsByTvShowId(tvShowId: string) {
+  return await db.query.seasonsTable.findMany({
+    where: (seasons, { eq }) => eq(seasons.tvShowId, tvShowId),
+    orderBy: (seasons, { desc }) => [desc(seasons.seasonNumber)],
+  });
+}
+
 import {
   getPopularContent,
   getRecentContent,

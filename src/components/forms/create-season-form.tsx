@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -11,10 +12,8 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   SearchSelect,
   SearchSelectContent,
@@ -29,48 +28,68 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { TvShowInterface } from "@/lib/db/schema";
-import { getTvShows } from "@/lib/actions/content-query-action";
-
-type TvShowItem = TvShowInterface & {
-  content: {
-    title: string;
-  };
-};
+import {
+  getTvShows,
+  getSeasonsByTvShowId,
+} from "@/lib/actions/content-query-action";
+import { createSeason } from "@/lib/actions/content-mutations";
+import { toast } from "sonner";
 
 const seasonSchema = z.object({
-  contentId: z.string().min(1, "Series is required"),
-  seasonNumber: z.coerce.number().min(1, "Season number is required"),
-  title: z.string().min(1, "Season title is required"),
+  tvShowId: z.string().min(1, "A TV Show must be selected."),
+  seasonNumber: z.coerce.number().min(1, "Season number is required."),
+  title: z.string().min(1, "Season title is required."),
 });
 
 export function CreateSeasonForm() {
+  const [selectedTvShowId, setSelectedTvShowId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<z.infer<typeof seasonSchema>>({
-    resolver: zodResolver(seasonSchema) as any,
+    resolver: zodResolver(seasonSchema as any),
     defaultValues: {
-      contentId: "",
+      tvShowId: "",
       seasonNumber: undefined,
       title: "",
     },
   });
 
-  const {
-    data: tvShowsData,
-    error,
-    isLoading,
-  } = useQuery<TvShowItem[]>({
-    queryKey: ["tv-shows"],
+  const { data: tvShowsData, isLoading: isTvShowsLoading } = useQuery({
+    queryKey: ["all-tv-shows"],
     queryFn: getTvShows,
   });
 
+  const { data: seasonsOfShow, isLoading: isSeasonsLoading } = useQuery({
+    queryKey: ["seasons-of-show", selectedTvShowId],
+    queryFn: () => getSeasonsByTvShowId(selectedTvShowId!),
+    enabled: !!selectedTvShowId,
+  });
+
+  useEffect(() => {
+    if (seasonsOfShow) {
+      const latestSeason = seasonsOfShow[0]?.seasonNumber || 0;
+      const nextSeasonNumber = latestSeason + 1;
+      form.setValue("seasonNumber", nextSeasonNumber);
+      form.setValue("title", `Season ${nextSeasonNumber}`);
+    }
+  }, [seasonsOfShow, form]);
+
   const onSubmit = async (data: z.infer<typeof seasonSchema>) => {
+    setIsSubmitting(true);
+    toast.info("Creating new season...");
     try {
-      // await createSeasonAction(data);
-      console.log("Season data to be submitted:", data);
-      // form.reset();
+      await createSeason(data);
+      toast.success(`Successfully created ${data.title}!`);
+      form.reset();
+      setSelectedTvShowId(null);
+      // Manually clear the search select trigger text
+      const trigger = document.querySelector("[data-radix-collection-item]");
+      if (trigger) (trigger as HTMLElement).textContent = "Select TV Show...";
     } catch (error) {
       console.error("Failed to create season:", error);
-      // alert("Failed to create season");
+      toast.error("Failed to create season.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -79,57 +98,50 @@ export function CreateSeasonForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="contentId"
+          name="tvShowId"
           render={({ field }) => (
             <FormItem className="flex flex-col space-y-2">
-              <FormLabel>Season</FormLabel>
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              ) : tvShowsData ? (
-                <SearchSelect>
-                  <SearchSelectTrigger>
-                    <SearchSelectValue placeholder="Select season...">
-                      {
-                        tvShowsData.find((item) => item.id === field.value)
-                          ?.content.title
-                      }
-                    </SearchSelectValue>
-                  </SearchSelectTrigger>
-                  <SearchSelectContent>
-                    <SearchSelectInput placeholder="Search seasons..." />
-                    <SearchSelectList>
-                      <SearchSelectEmpty>No content found.</SearchSelectEmpty>
-                      <SearchSelectGroup>
-                        {tvShowsData.map((item) => (
-                          <SearchSelectItem
-                            key={item.id}
-                            value={item.id}
-                            onSelect={() => {
-                              form.setValue("contentId", item.id);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                field.value === item.id
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
+              <FormLabel>TV Show</FormLabel>
+              <SearchSelect>
+                <SearchSelectTrigger>
+                  <SearchSelectValue placeholder="Select TV Show...">
+                    {
+                      tvShowsData?.find((item) => item.id === field.value)
+                        ?.content.title
+                    }
+                  </SearchSelectValue>
+                </SearchSelectTrigger>
+                <SearchSelectContent>
+                  <SearchSelectInput
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedTvShowId(value);
+                    }}
+                    placeholder="Search TV shows..."
+                  />
+                  <SearchSelectList>
+                    <SearchSelectEmpty>No shows found.</SearchSelectEmpty>
+                    <SearchSelectGroup>
+                      {isTvShowsLoading ? (
+                        <div className="flex items-center justify-center p-4">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : (
+                        tvShowsData?.map((item) => (
+                          <SearchSelectItem key={item.id} value={item.id}>
                             {item.content.title}
                           </SearchSelectItem>
-                        ))}
-                      </SearchSelectGroup>
-                    </SearchSelectList>
-                  </SearchSelectContent>
-                </SearchSelect>
-              ) : null}
+                        ))
+                      )}
+                    </SearchSelectGroup>
+                  </SearchSelectList>
+                </SearchSelectContent>
+              </SearchSelect>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="seasonNumber"
@@ -137,12 +149,24 @@ export function CreateSeasonForm() {
             <FormItem>
               <FormLabel>Season Number</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Season Number" {...field} />
+                <Input
+                  type="number"
+                  placeholder="e.g., 4"
+                  {...field}
+                  disabled={!selectedTvShowId || isSeasonsLoading}
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                />
               </FormControl>
+              {isSeasonsLoading && (
+                <p className="text-xs text-muted-foreground">
+                  Loading latest season...
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="title"
@@ -150,13 +174,21 @@ export function CreateSeasonForm() {
             <FormItem>
               <FormLabel>Season Title</FormLabel>
               <FormControl>
-                <Input placeholder="Season Title" {...field} />
+                <Input
+                  placeholder="e.g., Season 4"
+                  {...field}
+                  disabled={!selectedTvShowId || isSeasonsLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Create Season</Button>
+
+        <Button type="submit" disabled={isSubmitting || !selectedTvShowId}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Create Season
+        </Button>
       </form>
     </Form>
   );

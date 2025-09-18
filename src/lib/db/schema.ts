@@ -11,7 +11,6 @@ import {
   check,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
-import { table } from "console";
 
 export const contentTypeEnum = pgEnum("content_type", ["movie", "tv"]);
 export const contentStatusEnum = pgEnum("content_status", [
@@ -102,9 +101,9 @@ export const contentTable = pgTable("content", {
   description: text("description"),
   genre: varchar("genre", { length: 100 }).array(),
   releaseYear: integer("release_year"),
-  posterUrl: varchar("poster_url", { length: 500 }),
-  backdropUrl: varchar("backdrop_url", { length: 500 }),
-  trailerUrl: varchar("trailer_url", { length: 500 }),
+  posterKey: text("poster_key"),
+  backdropKey: text("backdrop_key"),
+  trailerKey: text("trailer_key"),
   contentType: contentTypeEnum("content_type").notNull().default("movie"),
   status: contentStatusEnum("content_status").default("completed"),
   uploadDate: timestamp("upload_date").defaultNow(),
@@ -150,8 +149,8 @@ export const episodesTable = pgTable("episodes", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   durationMinutes: integer("duration_minutes"),
-  stillUrl: varchar("still_url", { length: 500 }),
-  videoFileUrl: varchar("video_file_url", { length: 500 }),
+  stillKey: text("still_key"),
+  videoFileKey: text("video_file_key"),
   fileSizeMb: integer("file_size_mb"),
   airDate: timestamp("air_date"),
   isActive: boolean("is_active").default(true),
@@ -168,7 +167,7 @@ export const moviesTable = pgTable("movies", {
     .notNull()
     .unique(),
   durationMinutes: integer("duration_minutes"),
-  movieFileUrl: varchar("movie_file_url", { length: 500 }),
+  movieFileKey: text("movie_file_key"),
   fileSizeMb: integer("file_size_mb"),
   isActive: boolean("is_active").default(true),
 });

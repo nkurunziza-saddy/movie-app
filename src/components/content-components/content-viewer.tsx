@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { R2Image } from "../r2-image";
 
 interface ContentViewerProps {
   content: {
@@ -46,8 +47,8 @@ export function ContentViewer({ content }: ContentViewerProps) {
   return (
     <div className="relative h-[80vh] mx-2 sm:mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl bg-background">
       <div className="absolute inset-0">
-        <Image
-          src={content.posterUrl || "/placeholder.svg"}
+        <R2Image
+          objectKey={content.posterUrl}
           alt={content.title}
           fill
           className={cn(

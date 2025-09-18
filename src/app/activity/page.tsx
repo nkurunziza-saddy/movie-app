@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getUserStats } from "@/lib/actions/stats-query-action";
 import { requireAuth } from "@/lib/auth/server";
 import { getBookmarks } from "@/lib/actions/bookmarks-action";
+import { R2Image } from "@/components/r2-image";
 
 export default async function ActivityPage() {
   const session = await requireAuth();
@@ -145,16 +146,11 @@ export default async function ActivityPage() {
                         className="group"
                       >
                         <div className="relative overflow-hidden rounded-md">
-                          <Image
+                          <R2Image
                             width={100}
                             height={100}
-                            src={
-                              bookmark.content?.posterUrl ||
-                              `/placeholder.svg?height=200&width=150&query=${encodeURIComponent(
-                                bookmark.content?.title ?? ""
-                              )}`
-                            }
-                            alt={bookmark.content?.title}
+                            objectKey={bookmark.content?.posterKey}
+                            alt={bookmark.content?.title ?? "Content image"}
                             className="object-cover w-full h-full"
                           />
                           <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

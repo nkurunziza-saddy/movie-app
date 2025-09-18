@@ -54,15 +54,10 @@ export default async function DownloadsPage() {
                       key={download.id}
                       className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <Image
+                      <R2Image
                         height={80}
                         width={60}
-                        src={
-                          download.content.posterUrl ||
-                          `/placeholder.svg?height=80&width=60&query=${encodeURIComponent(
-                            download.content.title
-                          )}`
-                        }
+                        objectKey={download.content.posterKey}
                         alt={download.content.title}
                         className="w-12 h-18 rounded object-cover"
                       />
@@ -80,12 +75,6 @@ export default async function DownloadsPage() {
                                 ).toLocaleDateString()}
                             </span>
                           </div>
-
-                          <Badge variant="outline">
-                            {download.movie?.fileSizeMb ||
-                              download.episode?.fileSizeMb}{" "}
-                            MB
-                          </Badge>
                         </div>
                       </div>
                       <Button variant="outline" asChild>
@@ -99,6 +88,25 @@ export default async function DownloadsPage() {
               </div>
             )}
           </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+                    </Link>
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+      </CardContent>
         </Card>
       </div>
     </div>

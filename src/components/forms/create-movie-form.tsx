@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,28 +24,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { createMovie } from "@/lib/actions/content-mutations";
+import { uploadFile } from "@/lib/helpers/upload-file";
+import { movieSchema } from "@/lib/form-schema";
 
-// NOTE: This schema should be moved to @/lib/form-schema.ts
-const fileSchema = z.instanceof(File).optional();
-
-const movieSchema = z.object({
-  title: z.string().min(1, "Title is required."),
-  description: z.string().optional(),
-  genre: z.string().optional(),
-  releaseYear: z.coerce.number().optional(),
-  trailerUrl: z
-    .string()
-    .url({ message: "Invalid URL" })
-    .optional()
-    .or(z.literal("")),
-  durationMinutes: z.coerce.number().optional(),
-  poster: fileSchema.refine((file) => file, "Poster is required."),
-  backdrop: fileSchema,
-  movieFile: fileSchema.refine((file) => file, "Movie file is required."),
-  status: z.enum(["completed", "ongoing", "cancelled"]).default("completed"),
-});
+type MovieActionData = z.infer<typeof movieSchema> & {
+  posterKey: string;
+  backdropKey?: string;
+  movieFileKey: string;
+};
 
 export function CreateMovieForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [backdropFile, setBackdropFile] = useState<File | null>(null);
+  const [movieFile, setMovieFile] = useState<File | null>(null);
+
   const form = useForm<z.infer<typeof movieSchema>>({
     resolver: zodResolver(movieSchema as any),
     defaultValues: {
@@ -54,21 +52,56 @@ export function CreateMovieForm() {
       releaseYear: undefined,
       trailerUrl: "",
       durationMinutes: undefined,
-      poster: undefined,
-      backdrop: undefined,
-      movieFile: undefined,
       status: "completed",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof movieSchema>) => {
+    setIsSubmitting(true);
+    toast.info("Starting movie creation process...");
+
+    if (!posterFile || !movieFile) {
+      toast.error("Poster and Movie File are required.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // await createMovieAction(data);
-      console.log("Movie data to be submitted:", data);
-      // form.reset();
+      const [posterKey, backdropKey, movieFileKey] = await Promise.all([
+        uploadFile(posterFile),
+        backdropFile ? uploadFile(backdropFile) : Promise.resolve(undefined),
+        uploadFile(movieFile),
+      ]);
+
+      if (!posterKey || !movieFileKey) {
+        toast.error("A required file failed to upload. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const actionData: MovieActionData = {
+        ...data,
+        posterKey,
+        backdropKey,
+        movieFileKey,
+      };
+
+      toast.success("Files uploaded! Now saving movie details...");
+
+      await createMovie(actionData);
+
+      toast.success("Movie created successfully!");
+      form.reset();
+      setPosterFile(null);
+      setBackdropFile(null);
+      setMovieFile(null);
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach((input) => ((input as HTMLInputElement).value = ""));
     } catch (error) {
       console.error("Failed to create movie:", error);
-      // alert("Failed to create movie");
+      toast.error("An error occurred during movie creation.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -206,63 +239,50 @@ export function CreateMovieForm() {
               )}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="poster"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Poster Image</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="backdrop"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Backdrop Image</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem>
+                <FormLabel>Poster Image</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setPosterFile(e.target.files?.[0] ?? null)}
+                    required
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              <FormItem>
+                <FormLabel>Backdrop Image</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setBackdropFile(e.target.files?.[0] ?? null)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             </div>
-            <FormField
-              control={form.control}
-              name="movieFile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Movie File</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => field.onChange(e.target.files?.[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormItem>
+              <FormLabel>Movie File</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => setMovieFile(e.target.files?.[0] ?? null)}
+                  required
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           </CardContent>
         </Card>
         <div className="flex justify-end">
-          <Button type="submit" size="lg">
-            Create Movie
+          <Button type="submit" size="lg" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting ? "Uploading..." : "Create Movie"}
           </Button>
         </div>
       </form>

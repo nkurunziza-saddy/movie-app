@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, useFieldArray, Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,15 +25,15 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { createTvShow } from "@/lib/actions/content-mutations";
+import { uploadFile } from "@/lib/helpers/upload-file";
 
-// NOTE: These schemas should be moved to @/lib/form-schema.ts
-const fileSchema = z.instanceof(File).optional();
-
+// TODO: These schemas should be moved to @/lib/form-schema.ts
 const episodeSchema = z.object({
   episodeNumber: z.coerce.number().min(1, "Episode number is required."),
   title: z.string().min(1, "Episode title is required."),
-  videoFile: fileSchema.refine((file) => file, "Video file is required."),
 });
 
 const seasonSchema = z.object({
@@ -48,8 +49,6 @@ const tvShowSchema = z.object({
   description: z.string().optional(),
   genre: z.string().optional(),
   releaseYear: z.coerce.number().optional(),
-  poster: fileSchema.refine((file) => file, "Poster is required."),
-  backdrop: fileSchema,
   trailerUrl: z
     .string()
     .url({ message: "Invalid URL" })
@@ -60,14 +59,19 @@ const tvShowSchema = z.object({
     .array(seasonSchema)
     .min(1, "A TV show must have at least one season."),
 });
-// End of schemas
+
+interface FileStore {
+  [key: string]: File | null;
+}
 
 function EpisodeFields({
   control,
   seasonIndex,
+  onFileChange,
 }: {
   control: Control<z.infer<typeof tvShowSchema>>;
   seasonIndex: number;
+  onFileChange: (key: string, file: File | null) => void;
 }) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -87,7 +91,6 @@ function EpisodeFields({
             append({
               episodeNumber: fields.length + 1,
               title: "",
-              videoFile: undefined,
             })
           }
         >
@@ -105,11 +108,11 @@ function EpisodeFields({
               <h4 className="font-medium">Episode {index + 1}</h4>
               <Button
                 type="button"
-                variant="ghost"
+                variant="destructive"
                 size="icon"
                 onClick={() => remove(index)}
               >
-                <Trash2 className="h-4 w-4 text-destructive" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -140,23 +143,23 @@ function EpisodeFields({
                 )}
               />
             </div>
-            <FormField
-              control={control}
-              name={`seasons.${seasonIndex}.episodes.${index}.videoFile`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Video File</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => field.onChange(e.target.files?.[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormItem>
+              <FormLabel>Video File</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="video/*"
+                  required
+                  onChange={(e) =>
+                    onFileChange(
+                      `season-${seasonIndex}-episode-${index}`,
+                      e.target.files?.[0] ?? null
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           </div>
         ))}
       </div>
@@ -165,6 +168,9 @@ function EpisodeFields({
 }
 
 export function CreateTvShowForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [files, setFiles] = useState<FileStore>({});
+
   const form = useForm<z.infer<typeof tvShowSchema>>({
     resolver: zodResolver(tvShowSchema as any),
     defaultValues: {
@@ -172,15 +178,13 @@ export function CreateTvShowForm() {
       description: "",
       genre: "",
       releaseYear: undefined,
-      poster: undefined,
-      backdrop: undefined,
       trailerUrl: "",
       status: "ongoing",
       seasons: [
         {
           seasonNumber: 1,
           title: "Season 1",
-          episodes: [{ episodeNumber: 1, title: "", videoFile: undefined }],
+          episodes: [{ episodeNumber: 1, title: "" }],
         },
       ],
     },
@@ -191,9 +195,94 @@ export function CreateTvShowForm() {
     name: "seasons",
   });
 
+  const handleFileChange = (key: string, file: File | null) => {
+    setFiles((prev) => ({ ...prev, [key]: file }));
+  };
+
   const onSubmit = async (data: z.infer<typeof tvShowSchema>) => {
-    console.log("TV Show data to be submitted:", data);
-    // Implement your submission logic here
+    setIsSubmitting(true);
+    toast.info("Starting TV show creation process...");
+
+    const posterFile = files["poster"];
+    if (!posterFile) {
+      toast.error("A poster image is required.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const uploadPromises: Promise<[string, string | undefined]>[] = [];
+
+      uploadPromises.push(Promise.all(["posterKey", uploadFile(posterFile)]));
+      if (files["backdrop"]) {
+        uploadPromises.push(
+          Promise.all(["backdropKey", uploadFile(files["backdrop"]!)])
+        );
+      }
+
+      data.seasons.forEach((season, sIdx) => {
+        season.episodes.forEach((episode, eIdx) => {
+          const fileKey = `season-${sIdx}-episode-${eIdx}`;
+          const file = files[fileKey];
+          if (file) {
+            uploadPromises.push(Promise.all([fileKey, uploadFile(file)]));
+          } else {
+            throw new Error(
+              `Video file for Season ${sIdx + 1}, Episode ${
+                eIdx + 1
+              } is missing.`
+            );
+          }
+        });
+      });
+
+      toast.info(`Uploading ${uploadPromises.length} files...`);
+      const uploadResults = await Promise.all(uploadPromises);
+
+      const fileKeys: { [key: string]: string } = {};
+      for (const [key, result] of uploadResults) {
+        if (!result) {
+          throw new Error(
+            `Upload failed for one of the files. Please try again.`
+          );
+        }
+        fileKeys[key] = result;
+      }
+
+      const seasonsWithKeys = data.seasons.map((season, sIdx) => ({
+        ...season,
+        episodes: season.episodes.map((episode, eIdx) => ({
+          ...episode,
+          videoFileKey: fileKeys[`season-${sIdx}-episode-${eIdx}`],
+        })),
+      }));
+
+      const actionData = {
+        ...data,
+        posterKey: fileKeys["posterKey"],
+        backdropKey: fileKeys["backdropKey"],
+        seasons: seasonsWithKeys,
+      };
+
+      toast.success("All files uploaded! Saving TV show details...");
+
+      await createTvShow(actionData);
+
+      toast.success("TV Show created successfully!");
+      form.reset();
+      setFiles({});
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach((input) => ((input as HTMLInputElement).value = ""));
+    } catch (error) {
+      console.error("Failed to create TV show:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during TV show creation."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -278,40 +367,33 @@ export function CreateTvShowForm() {
               )}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="poster"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Poster</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="backdrop"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Backdrop</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem>
+                <FormLabel>Poster</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    required
+                    onChange={(e) =>
+                      handleFileChange("poster", e.target.files?.[0] ?? null)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              <FormItem>
+                <FormLabel>Backdrop</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleFileChange("backdrop", e.target.files?.[0] ?? null)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             </div>
             <FormField
               control={form.control}
@@ -388,7 +470,11 @@ export function CreateTvShowForm() {
                     )}
                   />
                 </div>
-                <EpisodeFields control={form.control} seasonIndex={index} />
+                <EpisodeFields
+                  control={form.control}
+                  seasonIndex={index}
+                  onFileChange={handleFileChange}
+                />
               </CardContent>
             </Card>
           ))}
@@ -401,7 +487,7 @@ export function CreateTvShowForm() {
             append({
               seasonNumber: fields.length + 1,
               title: `Season ${fields.length + 1}`,
-              episodes: [{ episodeNumber: 1, title: "", videoFile: undefined }],
+              episodes: [{ episodeNumber: 1, title: "" }],
             })
           }
         >
@@ -410,8 +496,9 @@ export function CreateTvShowForm() {
         </Button>
 
         <div className="flex justify-end">
-          <Button type="submit" size="lg">
-            Create TV Show
+          <Button type="submit" size="lg" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting ? "Uploading & Creating..." : "Create TV Show"}
           </Button>
         </div>
       </form>

@@ -5,22 +5,13 @@ import {
   seasonsTable,
   episodesTable,
   reviewsTable,
-  usersTable,
   bookmarksTable,
   downloadsTable,
   tvShowsTable,
 } from "@/lib/db/schema";
 
-async function seed() {
-  console.log("Seeding database...");
-
-  const users = await db.select().from(usersTable);
-  console.log(`Found ${users.length} users in the database.`);
-  if (users.length === 0) {
-    console.error("No users found. Please create a user first.");
-    process.exit(1);
-  }
-  const userId = users[0].id;
+async function reset() {
+  console.log("Resetting database...");
 
   await db.transaction(async (tx) => {
     // Clear existing data
@@ -35,11 +26,11 @@ async function seed() {
     await tx.delete(contentTable);
   });
 
-  console.log("Database seeded successfully!");
+  console.log("Database reset successfully!");
   process.exit(0);
 }
 
-seed().catch((err) => {
-  console.error("Failed to seed database:", err);
+reset().catch((err) => {
+  console.error("Failed to reset database:", err);
   process.exit(1);
 });
