@@ -30,8 +30,8 @@ export default function CreateFormQuickLinks() {
       <DropdownMenuContent align="end" className="border bg-card">
         {[
           FORMS_DETAILS.map((l) => (
-            <DropdownMenuItem asChild>
-              <Link href={`/create/${l.name}`} key={l.title}>
+            <DropdownMenuItem asChild key={l.title}>
+              <Link href={`/create/${l.name}`}>
                 <span> {l.title}</span>
               </Link>
             </DropdownMenuItem>

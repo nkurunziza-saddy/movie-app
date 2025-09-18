@@ -34,12 +34,13 @@ import {
 import { createEpisode } from "@/lib/actions/content-mutations";
 import { toast } from "sonner";
 import { uploadFile } from "@/lib/helpers/upload-file";
+import { Label } from "../ui/label";
 
 const episodeSchema = z.object({
   seasonId: z.string().min(1, "A season must be selected."),
-  episodeNumber: z.coerce.number().min(1, "Episode number is required."),
+  episodeNumber: z.number().min(1, "Episode number is required."),
   title: z.string().min(1, "Episode title is required."),
-  durationMinutes: z.coerce.number().min(1, "Duration is required."),
+  durationMinutes: z.number().min(1, "Duration is required."),
 });
 
 type EpisodeActionData = z.infer<typeof episodeSchema> & {
@@ -55,9 +56,9 @@ export function AddEpisodeForm() {
     resolver: zodResolver(episodeSchema as any),
     defaultValues: {
       seasonId: "",
-      episodeNumber: undefined,
+      episodeNumber: 1,
       title: "",
-      durationMinutes: undefined,
+      durationMinutes: 1,
     },
   });
 
@@ -114,20 +115,19 @@ export function AddEpisodeForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormItem className="flex flex-col space-y-2">
-          <FormLabel>TV Show</FormLabel>
+        <div className="flex flex-col space-y-2">
+          <Label>TV Show</Label>
           <SearchSelect>
             <SearchSelectTrigger>
-              <SearchSelectValue placeholder="Select TV Show..." />
+              <SearchSelectValue placeholder="Select TV Show...">
+                {
+                  tvShowsData?.find((item) => item.id === selectedTvShowId)
+                    ?.content.title
+                }
+              </SearchSelectValue>
             </SearchSelectTrigger>
             <SearchSelectContent>
-              <SearchSelectInput
-                onValueChange={(value) => {
-                  setSelectedTvShowId(value);
-                  form.resetField("seasonId");
-                }}
-                placeholder="Search TV shows..."
-              />
+              <SearchSelectInput placeholder="Search TV shows..." />
               <SearchSelectList>
                 <SearchSelectEmpty>No shows found.</SearchSelectEmpty>
                 <SearchSelectGroup>
@@ -137,7 +137,14 @@ export function AddEpisodeForm() {
                     </div>
                   ) : (
                     tvShowsData?.map((item) => (
-                      <SearchSelectItem key={item.id} value={item.id}>
+                      <SearchSelectItem
+                        onSelect={(value) => {
+                          setSelectedTvShowId(value);
+                          form.resetField("seasonId");
+                        }}
+                        key={item.id}
+                        value={item.id}
+                      >
                         {item.content.title}
                       </SearchSelectItem>
                     ))
@@ -146,7 +153,7 @@ export function AddEpisodeForm() {
               </SearchSelectList>
             </SearchSelectContent>
           </SearchSelect>
-        </FormItem>
+        </div>
 
         <FormField
           control={form.control}
@@ -156,12 +163,15 @@ export function AddEpisodeForm() {
               <FormLabel>Season</FormLabel>
               <SearchSelect>
                 <SearchSelectTrigger>
-                  <SearchSelectValue placeholder="Select Season..." />
+                  <SearchSelectValue placeholder="Select Season...">
+                    {
+                      seasonsOfShow?.find((item) => item.id === field.value)
+                        ?.title
+                    }
+                  </SearchSelectValue>
                 </SearchSelectTrigger>
                 <SearchSelectContent>
                   <SearchSelectInput
-                    onValueChange={field.onChange}
-                    value={field.value}
                     disabled={!selectedTvShowId || isSeasonsLoading}
                     placeholder="Search seasons..."
                   />
@@ -176,7 +186,11 @@ export function AddEpisodeForm() {
                         </div>
                       ) : (
                         seasonsOfShow?.map((item) => (
-                          <SearchSelectItem key={item.id} value={item.id}>
+                          <SearchSelectItem
+                            onSelect={field.onChange}
+                            key={item.id}
+                            value={item.id}
+                          >
                             {item.title}
                           </SearchSelectItem>
                         ))

@@ -26,30 +26,31 @@ import {
   SearchSelectValue,
 } from "@/components/ui/search-select";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { AlertCircle, Loader2 } from "lucide-react";
 import {
   getTvShows,
   getSeasonsByTvShowId,
 } from "@/lib/actions/content-query-action";
 import { createSeason } from "@/lib/actions/content-mutations";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "../ui/alert";
 
 const seasonSchema = z.object({
   tvShowId: z.string().min(1, "A TV Show must be selected."),
-  seasonNumber: z.coerce.number().min(1, "Season number is required."),
+  seasonNumber: z.number().positive("Season number is required."),
   title: z.string().min(1, "Season title is required."),
 });
 
+type CreateSeasonFormData = z.infer<typeof seasonSchema>;
+
 export function CreateSeasonForm() {
   const [selectedTvShowId, setSelectedTvShowId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<z.infer<typeof seasonSchema>>({
+  const [dataError, setDataError] = useState("");
+  const form = useForm<CreateSeasonFormData>({
     resolver: zodResolver(seasonSchema as any),
     defaultValues: {
       tvShowId: "",
-      seasonNumber: undefined,
+      seasonNumber: 1,
       title: "",
     },
   });
@@ -64,37 +65,58 @@ export function CreateSeasonForm() {
     queryFn: () => getSeasonsByTvShowId(selectedTvShowId!),
     enabled: !!selectedTvShowId,
   });
-
+  const seasonNumberValue = form.watch("seasonNumber");
   useEffect(() => {
-    if (seasonsOfShow) {
-      const latestSeason = seasonsOfShow[0]?.seasonNumber || 0;
+    if (seasonsOfShow?.length) {
+      const seasonsNumbers = seasonsOfShow
+        .map((t) => t.seasonNumber)
+        .sort((a, b) => a - b);
+
+      const latestSeason = seasonsNumbers[seasonsNumbers.length - 1] ?? 0;
       const nextSeasonNumber = latestSeason + 1;
-      form.setValue("seasonNumber", nextSeasonNumber);
-      form.setValue("title", `Season ${nextSeasonNumber}`);
+
+      const areConsecutive = seasonsNumbers.every(
+        (num, idx) => idx === 0 || num - seasonsNumbers[idx - 1] === 1
+      );
+
+      if (!areConsecutive) {
+        setDataError(
+          `Your seasons are not consecutive: ${seasonsNumbers.join(", ")}`
+        );
+      }
+
+      if (!form.getValues("seasonNumber")) {
+        form.setValue("seasonNumber", nextSeasonNumber);
+      }
+      if (!form.getValues("title")) {
+        form.setValue("title", `Season ${nextSeasonNumber}`);
+      }
     }
-  }, [seasonsOfShow, form]);
+  }, [seasonsOfShow, form, seasonNumberValue]);
 
   const onSubmit = async (data: z.infer<typeof seasonSchema>) => {
-    setIsSubmitting(true);
     toast.info("Creating new season...");
     try {
       await createSeason(data);
+      console.log(data);
       toast.success(`Successfully created ${data.title}!`);
       form.reset();
       setSelectedTvShowId(null);
-      // Manually clear the search select trigger text
-      const trigger = document.querySelector("[data-radix-collection-item]");
-      if (trigger) (trigger as HTMLElement).textContent = "Select TV Show...";
     } catch (error) {
       console.error("Failed to create season:", error);
       toast.error("Failed to create season.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
-
+  const { isSubmitting } = form.formState;
   return (
     <Form {...form}>
+      {dataError && (
+        <Alert className="mb-4" variant={"warning"}>
+          <AlertCircle />
+          <AlertDescription>{dataError}</AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
@@ -112,13 +134,7 @@ export function CreateSeasonForm() {
                   </SearchSelectValue>
                 </SearchSelectTrigger>
                 <SearchSelectContent>
-                  <SearchSelectInput
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedTvShowId(value);
-                    }}
-                    placeholder="Search TV shows..."
-                  />
+                  <SearchSelectInput placeholder="Search TV shows..." />
                   <SearchSelectList>
                     <SearchSelectEmpty>No shows found.</SearchSelectEmpty>
                     <SearchSelectGroup>
@@ -128,7 +144,14 @@ export function CreateSeasonForm() {
                         </div>
                       ) : (
                         tvShowsData?.map((item) => (
-                          <SearchSelectItem key={item.id} value={item.id}>
+                          <SearchSelectItem
+                            onSelect={(value) => {
+                              field.onChange(value);
+                              setSelectedTvShowId(value);
+                            }}
+                            key={item.id}
+                            value={item.id}
+                          >
                             {item.content.title}
                           </SearchSelectItem>
                         ))
@@ -151,6 +174,8 @@ export function CreateSeasonForm() {
               <FormControl>
                 <Input
                   type="number"
+                  min="1"
+                  step="1"
                   placeholder="e.g., 4"
                   {...field}
                   disabled={!selectedTvShowId || isSeasonsLoading}
