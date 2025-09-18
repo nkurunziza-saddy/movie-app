@@ -107,7 +107,7 @@ export const contentTable = pgTable("content", {
   contentType: contentTypeEnum("content_type").notNull().default("movie"),
   status: contentStatusEnum("content_status").default("completed"),
   uploadDate: timestamp("upload_date").defaultNow(),
-  uploaderId: text("uploader_id").references(() => usersTable.id),
+  uploaderId: text("uploader_id").references(() => usersTable.id, { onDelete: "set null" }),
   downloadCount: integer("download_count").default(0),
   isActive: boolean("is_active").default(true),
 });

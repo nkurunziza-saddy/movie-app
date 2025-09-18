@@ -2,12 +2,18 @@ import {
   FORMS_DETAILS,
   renderForm,
 } from "@/lib/helpers/render-form-dynamically";
+import { requireAdmin } from "@/lib/auth/server";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export default async function CreatePage(
   props: PageProps<"/create/[form_name]">
 ) {
+  try {
+    await requireAdmin();
+  } catch (error) {
+    redirect("/auth/signin");
+  }
   const form_name = (await props.params).form_name;
   const formInfo = FORMS_DETAILS.find((m) => m.name == form_name);
 

@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { key: string[] } }
+  { params }: { params: Promise<{ key: string[] }> }
 ) {
-  const key = params.key.join("/");
+  const key = (await params).key.join("/");
   if (!key) {
     return NextResponse.json({ error: "Missing key" }, { status: 400 });
   }

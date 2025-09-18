@@ -45,7 +45,7 @@ export function ContentViewer({ content }: ContentViewerProps) {
     : null;
 
   return (
-    <div className="relative h-[80vh] mx-2 sm:mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl bg-background">
+    <div className="relative h-[80vh] mx-2 sm:mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl">
       <div className="absolute inset-0">
         <R2Image
           objectKey={content.posterUrl}
@@ -73,8 +73,8 @@ export function ContentViewer({ content }: ContentViewerProps) {
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-background/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
       </div>
 
       <div className="relative z-10 h-full flex items-center">

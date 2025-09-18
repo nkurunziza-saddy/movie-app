@@ -74,7 +74,7 @@ export async function downloadContentAction({
     throw new Error("Could not determine content ID for download tracking.");
   }
 
-  const downloadUrl = await getPresignedUrl(fileKey);
+  const downloadUrl = await getPresignedUrl(fileKey, filename);
 
   db.insert(downloadsTable)
     .values({

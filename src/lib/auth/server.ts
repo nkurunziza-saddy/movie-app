@@ -18,3 +18,13 @@ export const requireAuth = async () => {
 
   return session;
 };
+
+export const requireAdmin = async () => {
+  const session = await requireAuth(); // Ensures user is logged in
+
+  if (session.user?.email !== process.env.ADMIN_EMAIL) {
+    throw new Error("Unauthorized: Admin access required");
+  }
+
+  return session;
+};

@@ -3,12 +3,19 @@
 import { useQuery } from "@tanstack/react-query";
 import Image, { type ImageProps } from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
 type R2ImageProps = Omit<ImageProps, "src"> & {
   objectKey: string | null | undefined;
 };
 
 export function R2Image({ objectKey, alt, ...props }: R2ImageProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const {
     data: src,
     isLoading,
@@ -26,7 +33,8 @@ export function R2Image({ objectKey, alt, ...props }: R2ImageProps) {
     enabled: !!objectKey,
     staleTime: 1000 * 60 * 60 * 24 * 6,
   });
-  if (isLoading) {
+
+  if (!isMounted || isLoading) {
     return <Skeleton className="w-full h-full" />;
   }
 

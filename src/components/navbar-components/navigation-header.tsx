@@ -21,11 +21,24 @@ import { getServerSession } from "@/lib/auth/server";
 const navigationLinks = [
   { href: "/", label: "home" },
   { href: "/popular", label: "popular" },
-  { href: "/activity/bookmarks", label: "bookmarks" },
 ];
 
 export default async function Header() {
   const session = await getServerSession();
+
+  const betterNav =
+    session?.user.email === process.env.ADMIN_EMAIL
+      ? [
+          ...navigationLinks,
+          { href: "/activity/bookmarks", label: "bookmarks" },
+          { href: "/dashboard", label: "dashboard" },
+        ]
+      : session?.user.email
+      ? [
+          ...navigationLinks,
+          { href: "/activity/bookmarks", label: "bookmarks" },
+        ]
+      : navigationLinks;
   return (
     <header className="border-b ">
       <div className="flex h-16 items-center justify-between gap-4 container mx-auto px-4">
@@ -86,7 +99,7 @@ export default async function Header() {
 
             <NavigationMenu className="max-md:hidden">
               <NavigationMenuList className="gap-2">
-                {navigationLinks.map((link, index) => (
+                {betterNav.map((link, index) => (
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
                       href={link.href}
@@ -104,7 +117,9 @@ export default async function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <InfoMenu />
-              <CreateFormQuickLinks />
+              {session.user.email === process.env.ADMIN_EMAIL && (
+                <CreateFormQuickLinks />
+              )}
             </div>
             <UserMenu user={session.user} />
           </div>

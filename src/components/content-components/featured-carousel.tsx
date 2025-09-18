@@ -28,7 +28,7 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
   }
 
   return (
-    <div className="relative w-full h-[63vh] overflow-hidden rounded-lg bg-background">
+    <div className="relative w-full h-[63vh] overflow-hidden rounded-lg">
       <div className="absolute inset-0">
         {featuredContent.map((content, index) => (
           <R2Image
@@ -45,9 +45,9 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
         ))}
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/95 to-transparent p-8">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 to-transparent p-8">
         <div className="max-w-2xl">
           <div className="relative h-28">
             {featuredContent.map((content, index) => (

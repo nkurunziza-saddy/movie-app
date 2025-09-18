@@ -7,7 +7,7 @@ import {
   episodesTable,
   tvShowsTable,
 } from "../db/schema";
-import { getServerSession } from "../auth/server";
+import { requireAdmin } from "../auth/server";
 
 export async function createMovie(data: {
   title: string;
@@ -20,10 +20,7 @@ export async function createMovie(data: {
   backdropKey?: string;
   movieFileKey: string;
 }) {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  const session = await requireAdmin();
 
   return await db.transaction(async (tx) => {
     const [newContent] = await tx
@@ -73,10 +70,7 @@ export async function createTvShow(data: {
     }[];
   }[];
 }) {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  const session = await requireAdmin();
 
   return await db.transaction(async (tx) => {
     const [newContent] = await tx
@@ -133,10 +127,7 @@ export async function createSeason(data: {
   seasonNumber: number;
   title: string;
 }) {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   return await db.insert(seasonsTable).values(data).returning();
 }
@@ -148,10 +139,7 @@ export async function createEpisode(data: {
   durationMinutes: number;
   videoFileKey: string;
 }) {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const season = await db.query.seasonsTable.findFirst({
     where: (seasonsTable, { eq }) => eq(seasonsTable.id, data.seasonId),

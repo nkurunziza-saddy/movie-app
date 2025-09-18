@@ -3,8 +3,15 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { R2 } from "@/lib/r2";
 import { randomUUID } from "crypto";
+import { requireAdmin } from "@/lib/auth/server";
 
 export async function POST(req: NextRequest) {
+  try {
+    await requireAdmin();
+  } catch (error) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
   try {
     const { filename, contentType } = await req.json();
 
