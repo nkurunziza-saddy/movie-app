@@ -3,8 +3,9 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { R2 } from "@/lib/r2";
+import { cache } from "react";
 
-export async function getPresignedUrl(key: string): Promise<string> {
+export const getPresignedUrl = cache(async (key: string): Promise<string> => {
   const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME;
   if (!R2_BUCKET_NAME) {
     throw new Error("R2_BUCKET_NAME is not set in .env file");
@@ -15,7 +16,7 @@ export async function getPresignedUrl(key: string): Promise<string> {
     Key: key,
   });
 
-  const signedUrl = await getSignedUrl(R2, command, { expiresIn: 3600 });
+  const signedUrl = await getSignedUrl(R2, command, { expiresIn: 604800 }); // 7 days
 
   return signedUrl;
-}
+});
