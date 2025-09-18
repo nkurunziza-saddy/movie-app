@@ -5,6 +5,7 @@ import { Calendar, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { requireAuth } from "@/lib/auth/server";
+import { R2Image } from "@/components/r2-image";
 
 export default async function DownloadsPage() {
   const session = await requireAuth();
@@ -32,14 +33,12 @@ export default async function DownloadsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Download className="h-5 w-5" />
               Downloads ({downloads.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {downloads.length === 0 ? (
               <div className="text-center py-8">
-                <Download className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No downloads yet</p>
                 <Button asChild className="mt-4">
                   <Link href="/">Browse Movies</Link>
@@ -88,25 +87,6 @@ export default async function DownloadsPage() {
               </div>
             )}
           </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-                    </Link>
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-      </CardContent>
         </Card>
       </div>
     </div>
