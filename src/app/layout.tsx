@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import Header from "@/components/navbar-components/navigation-header";
 import { Toaster } from "@/components/ui/sonner";
 import { META_THEME_COLORS } from "@/lib/config";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -60,6 +61,7 @@ export default function RootLayout({
             <Toaster position="top-center" className="rounded-md" richColors />
           </div>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

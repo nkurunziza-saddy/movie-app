@@ -20,10 +20,9 @@ export const requireAuth = async () => {
 };
 
 export const requireAdmin = async () => {
-  const session = await requireAuth(); // Ensures user is logged in
-
+  const session = await requireAuth();
   if (session.user?.email !== process.env.ADMIN_EMAIL) {
-    throw new Error("Unauthorized: Admin access required");
+    redirect("/");
   }
 
   return session;

@@ -23,10 +23,13 @@ import {
 import { signOut } from "@/lib/auth/auth-client";
 import Link from "next/link";
 import type { SessionUser } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function UserMenu({ user }: { user: SessionUser }) {
+  const router = useRouter();
   const handleLogout = async () => {
     await signOut();
+    router.refresh();
   };
   return (
     <DropdownMenu>
