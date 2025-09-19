@@ -51,7 +51,7 @@ export default function DashboardPage() {
     <div className="">
       <div className="border-b border-border/40 bg-background/95 backdrop-blur">
         <div className="py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-lg font-mono font-medium text-foreground">
                 Content Dashboard

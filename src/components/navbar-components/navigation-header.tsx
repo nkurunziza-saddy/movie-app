@@ -125,9 +125,6 @@ export default async function Header() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <Button size="sm" variant={"ghost"} className="">
-              <Search className="size-4" />
-            </Button>
             <Button asChild size="sm" className="text-sm">
               <Link href="/auth/signin">Sign In</Link>
             </Button>

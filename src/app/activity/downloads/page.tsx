@@ -48,7 +48,7 @@ export default async function DownloadsPage() {
                   return (
                     <div
                       key={download.id}
-                      className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <R2Image
                         height={80}

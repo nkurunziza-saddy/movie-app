@@ -1,6 +1,6 @@
 {
   "name": "AllMovies",
-  "short_name": "AM",
+  "short_name": "AllMovies",
   "description": "All movies is a collection site that allows you to download movies and TV shows.",
   "start_url": "/",
   "orientation": "portrait",

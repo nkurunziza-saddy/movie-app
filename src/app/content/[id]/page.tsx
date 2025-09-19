@@ -15,7 +15,7 @@ import { DeleteContentButton } from "@/components/content-components/delete-cont
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
   const session = await getServerSession();
-  const isBookmarked = await checkBookmark(id);
+  const isBookmarked = session ? await checkBookmark(id) : false;
   const content = await getContentWithDetails(id);
   if (!content) {
     notFound();

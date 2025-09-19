@@ -132,7 +132,7 @@ export default async function ActivityPage() {
                   No bookmarks yet
                 </p>
               ) : (
-                <div className="grid grid-cols-6 lg:grid-cols-9 gap-1">
+                <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-2">
                   {bookmarks.map((bookmark) => {
                     if (!bookmark.content) return null;
                     return (
