@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { THEME_OPTIONS } from "@/lib/config";
 
 export function ThemeProvider({
   children,
@@ -11,6 +12,7 @@ export function ThemeProvider({
     <NextThemesProvider
       attribute="class"
       defaultTheme="system"
+      themes={THEME_OPTIONS}
       enableSystem
       disableTransitionOnChange
       {...props}

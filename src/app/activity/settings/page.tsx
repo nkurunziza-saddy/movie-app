@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAuth } from "@/lib/auth/server";
 import { DeleteAccountButton } from "@/components/settings-components/delete-account-button";
+import { ThemeToggler } from "@/components/settings-components/theme-toggler";
 import { UpdateProfileForm } from "@/components/settings-components/update-profile-form";
 
 export default async function SettingsPage() {
@@ -26,6 +27,8 @@ export default async function SettingsPage() {
       <div className="py-8">
         <div className="space-y-6">
           <UpdateProfileForm user={session.user} />
+
+          <ThemeToggler />
 
           <Card className="border-destructive">
             <CardHeader>
