@@ -1,56 +1,65 @@
 "use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Download, Loader2, Play } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Download, Loader2 } from "lucide-react";
+import { useSession } from "@/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { downloadContentAction } from "@/lib/actions/download-action";
+import { VariantProps } from "class-variance-authority";
+import { ComponentProps, useState } from "react";
 
-interface DownloadButtonProps {
-  contentId: string;
+type DownloadButtonProps = {
+  movieId?: string;
+  episodeId?: string;
+  fileName?: string;
   className?: string;
-}
+};
 
-export function DownloadButton({ contentId, className }: DownloadButtonProps) {
+export function DownloadButton({
+  movieId,
+  episodeId,
+  variant,
+  size,
+  fileName,
+  className,
+  ...props
+}: DownloadButtonProps &
+  ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants>) {
   const [isDownloading, setIsDownloading] = useState(false);
-  const { data: session } = useSession();
-  const router = useRouter();
 
   const handleDownload = async () => {
-    if (!session) {
-      toast.error("Please sign in to download movies");
-      router.push("/auth/signin");
+    if (!movieId && !episodeId) {
+      toast.error("No content specified for download.");
       return;
     }
 
     setIsDownloading(true);
+    toast.info("Preparing your download...");
 
     try {
-      const response = await fetch(`/api/download/${contentId}`, {
-        method: "POST",
-      });
+      const result = await downloadContentAction({ movieId, episodeId });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Download failed");
+      if (!result || !result.downloadUrl) {
+        throw new Error("Could not retrieve download link.");
       }
 
-      const { downloadUrl, filename } = await response.json();
-
-      // Create download link
       const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = filename;
+      link.href = result.downloadUrl;
+      link.download = result.filename || "download";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success("Download started!");
+      toast.success("Your download has started!");
     } catch (error) {
       console.error("Download error:", error);
-      toast.error(error instanceof Error ? error.message : "Download failed");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Download failed. Please try again."
+      );
     } finally {
       setIsDownloading(false);
     }
@@ -60,18 +69,21 @@ export function DownloadButton({ contentId, className }: DownloadButtonProps) {
     <Button
       onClick={handleDownload}
       disabled={isDownloading}
-      className={cn("", className)}
-      size="lg"
+      className={cn(
+        "flex items-center gap-2",
+        buttonVariants({ variant, size, className })
+      )}
+      {...props}
     >
       {isDownloading ? (
         <>
-          <Loader2 className="h-5 w-5 fill-current animate-spin" />
-          Preparing Download...
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Preparing...</span>
         </>
       ) : (
         <>
-          <Download className="h-5 w-5 fill-current" />
-          Download
+          <Download className="h-4 w-4" />
+          <span>Download</span>
         </>
       )}
     </Button>

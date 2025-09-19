@@ -3,20 +3,21 @@ import {
   varchar,
   text,
   integer,
-  decimal,
   timestamp,
   boolean,
   inet,
   pgEnum,
+  uniqueIndex,
+  check,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
-export const subscriptionTierEnum = pgEnum("subscription_tier", [
-  "free",
-  "premium",
+export const contentTypeEnum = pgEnum("content_type", ["movie", "tv"]);
+export const contentStatusEnum = pgEnum("content_status", [
+  "completed",
+  "ongoing",
+  "cancelled",
 ]);
-export const qualityEnum = pgEnum("quality", ["720p", "1080p", "4K"]);
-export const contentTypeEnum = pgEnum("content_type", ["movie", "series"]);
 
 export const usersTable = pgTable("users", {
   id: text("id")
@@ -76,24 +77,6 @@ export const accountsTable = pgTable("accounts", {
     .notNull(),
 });
 
-export const subscriptionTable = pgTable("subscription", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .default(sql`gen_random_uuid()`),
-  plan: text("plan").notNull(),
-  referenceId: text("reference_id").notNull(),
-  stripeCustomerId: text("stripe_customer_id"),
-  stripeSubscriptionId: text("stripe_subscription_id"),
-  status: text("status").notNull(),
-  periodStart: timestamp("period_start"),
-  periodEnd: timestamp("period_end"),
-  cancelAtPeriodEnd: boolean("cancel_at_period_end"),
-  seats: integer("seats"),
-  trialStart: timestamp("trial_start"),
-  trialEnd: timestamp("trial_end"),
-});
-
 export const verificationsTable = pgTable("verifications", {
   id: text("id")
     .primaryKey()
@@ -118,39 +101,43 @@ export const contentTable = pgTable("content", {
   description: text("description"),
   genre: varchar("genre", { length: 100 }).array(),
   releaseYear: integer("release_year"),
-  posterUrl: varchar("poster_url", { length: 500 }),
-  backdropUrl: varchar("backdrop_url", { length: 500 }),
-  trailerUrl: varchar("trailer_url", { length: 500 }),
+  posterKey: text("poster_key"),
+  backdropKey: text("backdrop_key"),
+  trailerKey: text("trailer_key"),
   contentType: contentTypeEnum("content_type").notNull().default("movie"),
-  totalSeasons: integer("total_seasons").default(0),
-  status: varchar("status", { length: 50 }).default("completed"),
+  status: contentStatusEnum("content_status").default("completed"),
   uploadDate: timestamp("upload_date").defaultNow(),
-  uploaderId: text("uploader_id").references(() => usersTable.id),
+  uploaderId: text("uploader_id").references(() => usersTable.id, {
+    onDelete: "set null",
+  }),
   downloadCount: integer("download_count").default(0),
-  averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default(
-    "0"
-  ),
   isActive: boolean("is_active").default(true),
-  isPremium: boolean("is_premium").default(false),
 });
 
-export const seasonsTable = pgTable("seasons", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .default(sql`gen_random_uuid()`),
-  contentId: text("content_id")
-    .references(() => contentTable.id, { onDelete: "cascade" })
-    .notNull(),
-  seasonNumber: integer("season_number").notNull(),
-  title: varchar("title", { length: 255 }),
-  description: text("description"),
-  releaseYear: integer("release_year"),
-  posterUrl: varchar("poster_url", { length: 500 }),
-  totalEpisodes: integer("total_episodes").default(0),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const seasonsTable = pgTable(
+  "seasons",
+  {
+    id: text("id")
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    tvShowId: text("tv_show_id")
+      .references(() => tvShowsTable.id, { onDelete: "cascade" })
+      .notNull(),
+    seasonNumber: integer("season_number").notNull(),
+    title: varchar("title", { length: 255 }),
+    description: text("description"),
+    releaseYear: integer("release_year"),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("season_number_show_unique").on(
+      table.tvShowId,
+      table.seasonNumber
+    ),
+  ]
+);
 
 export const episodesTable = pgTable("episodes", {
   id: text("id")
@@ -160,17 +147,13 @@ export const episodesTable = pgTable("episodes", {
   seasonId: text("season_id")
     .references(() => seasonsTable.id, { onDelete: "cascade" })
     .notNull(),
-  contentId: text("content_id")
-    .references(() => contentTable.id, { onDelete: "cascade" })
-    .notNull(),
   episodeNumber: integer("episode_number").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   durationMinutes: integer("duration_minutes"),
-  stillUrl: varchar("still_url", { length: 500 }),
-  videoFileUrl: varchar("video_file_url", { length: 500 }),
+  stillKey: text("still_key"),
+  videoFileKey: text("video_file_key"),
   fileSizeMb: integer("file_size_mb"),
-  quality: qualityEnum("quality"),
   airDate: timestamp("air_date"),
   isActive: boolean("is_active").default(true),
   uploadDate: timestamp("upload_date").defaultNow(),
@@ -183,46 +166,69 @@ export const moviesTable = pgTable("movies", {
     .default(sql`gen_random_uuid()`),
   contentId: text("content_id")
     .references(() => contentTable.id, { onDelete: "cascade" })
-    .notNull(),
+    .notNull()
+    .unique(),
   durationMinutes: integer("duration_minutes"),
-  movieFileUrl: varchar("movie_file_url", { length: 500 }),
+  movieFileKey: text("movie_file_key"),
   fileSizeMb: integer("file_size_mb"),
-  quality: qualityEnum("quality"),
   isActive: boolean("is_active").default(true),
 });
 
-export const reviewsTable = pgTable("reviews", {
+export const tvShowsTable = pgTable("tv_shows", {
   id: text("id")
     .primaryKey()
     .notNull()
     .default(sql`gen_random_uuid()`),
-  userId: text("user_id")
-    .references(() => usersTable.id)
-    .notNull(),
   contentId: text("content_id")
-    .references(() => contentTable.id)
-    .notNull(),
-  seasonId: text("season_id").references(() => seasonsTable.id),
-  episodeId: text("episode_id").references(() => episodesTable.id),
-  rating: integer("rating").notNull(),
-  reviewText: text("review_text"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+    .references(() => contentTable.id, { onDelete: "cascade" })
+    .notNull()
+    .unique(),
+  isActive: boolean("is_active").default(true),
 });
 
-export const bookmarksTable = pgTable("bookmarks", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .default(sql`gen_random_uuid()`),
-  userId: text("user_id")
-    .references(() => usersTable.id)
-    .notNull(),
-  contentId: text("content_id")
-    .references(() => contentTable.id)
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const reviewsTable = pgTable(
+  "reviews",
+  {
+    id: text("id")
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .references(() => usersTable.id)
+      .notNull(),
+    contentId: text("content_id")
+      .references(() => contentTable.id)
+      .notNull(),
+    rating: integer("rating").notNull(),
+    reviewText: text("review_text"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [check("rating_check", sql`${table.rating} BETWEEN 1 AND 5`)]
+);
+
+export const bookmarksTable = pgTable(
+  "bookmarks",
+  {
+    id: text("id")
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .references(() => usersTable.id)
+      .notNull(),
+    contentId: text("content_id")
+      .references(() => contentTable.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("bookmarks_user_content_unique").on(
+      table.userId,
+      table.contentId
+    ),
+  ]
+);
 
 export const downloadsTable = pgTable("downloads", {
   id: text("id")
@@ -240,30 +246,10 @@ export const downloadsTable = pgTable("downloads", {
   userAgent: varchar("user_agent", { length: 500 }),
 });
 
-export const watchProgressTable = pgTable("watch_progress", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .default(sql`gen_random_uuid()`),
-  userId: text("user_id")
-    .references(() => usersTable.id)
-    .notNull(),
-  contentId: text("content_id")
-    .references(() => contentTable.id)
-    .notNull(),
-  seasonId: text("season_id").references(() => seasonsTable.id),
-  episodeId: text("episode_id").references(() => episodesTable.id),
-  progressSeconds: integer("progress_seconds").default(0),
-  totalSeconds: integer("total_seconds"),
-  completed: boolean("completed").default(false),
-  lastWatched: timestamp("last_watched").defaultNow(),
-});
-
 export const usersRelations = relations(usersTable, ({ many }) => ({
   reviews: many(reviewsTable),
   bookmarks: many(bookmarksTable),
   downloads: many(downloadsTable),
-  watchProgress: many(watchProgressTable),
   uploadedContent: many(contentTable),
 }));
 
@@ -272,23 +258,25 @@ export const contentRelations = relations(contentTable, ({ one, many }) => ({
     fields: [contentTable.uploaderId],
     references: [usersTable.id],
   }),
-  seasons: many(seasonsTable),
-  episodes: many(episodesTable),
-  movie: one(moviesTable),
+  movie: one(moviesTable, {
+    fields: [contentTable.id],
+    references: [moviesTable.contentId],
+  }),
+  tvShow: one(tvShowsTable, {
+    fields: [contentTable.id],
+    references: [tvShowsTable.contentId],
+  }),
   reviews: many(reviewsTable),
   bookmarks: many(bookmarksTable),
   downloads: many(downloadsTable),
-  watchProgress: many(watchProgressTable),
 }));
 
 export const seasonsRelations = relations(seasonsTable, ({ one, many }) => ({
-  content: one(contentTable, {
-    fields: [seasonsTable.contentId],
-    references: [contentTable.id],
+  tvShow: one(tvShowsTable, {
+    fields: [seasonsTable.tvShowId],
+    references: [tvShowsTable.id],
   }),
   episodes: many(episodesTable),
-  reviews: many(reviewsTable),
-  watchProgress: many(watchProgressTable),
 }));
 
 export const episodesRelations = relations(episodesTable, ({ one, many }) => ({
@@ -296,13 +284,15 @@ export const episodesRelations = relations(episodesTable, ({ one, many }) => ({
     fields: [episodesTable.seasonId],
     references: [seasonsTable.id],
   }),
+  downloads: many(downloadsTable),
+}));
+
+export const tvShowRelations = relations(tvShowsTable, ({ one, many }) => ({
   content: one(contentTable, {
-    fields: [episodesTable.contentId],
+    fields: [tvShowsTable.contentId],
     references: [contentTable.id],
   }),
-  reviews: many(reviewsTable),
-  downloads: many(downloadsTable),
-  watchProgress: many(watchProgressTable),
+  seasons: many(seasonsTable),
 }));
 
 export const moviesRelations = relations(moviesTable, ({ one, many }) => ({
@@ -321,14 +311,6 @@ export const reviewsRelations = relations(reviewsTable, ({ one }) => ({
   content: one(contentTable, {
     fields: [reviewsTable.contentId],
     references: [contentTable.id],
-  }),
-  season: one(seasonsTable, {
-    fields: [reviewsTable.seasonId],
-    references: [seasonsTable.id],
-  }),
-  episode: one(episodesTable, {
-    fields: [reviewsTable.episodeId],
-    references: [episodesTable.id],
   }),
 }));
 
@@ -362,46 +344,40 @@ export const downloadsRelations = relations(downloadsTable, ({ one }) => ({
   }),
 }));
 
-export const watchProgressRelations = relations(
-  watchProgressTable,
-  ({ one }) => ({
-    user: one(usersTable, {
-      fields: [watchProgressTable.userId],
-      references: [usersTable.id],
-    }),
-    content: one(contentTable, {
-      fields: [watchProgressTable.contentId],
-      references: [contentTable.id],
-    }),
-    season: one(seasonsTable, {
-      fields: [watchProgressTable.seasonId],
-      references: [seasonsTable.id],
-    }),
-    episode: one(episodesTable, {
-      fields: [watchProgressTable.episodeId],
-      references: [episodesTable.id],
-    }),
-  })
-);
-
 export type ContentInterface = typeof contentTable.$inferSelect;
 export type SeasonInterface = typeof seasonsTable.$inferSelect;
 export type EpisodeInterface = typeof episodesTable.$inferSelect;
+export type TvShowInterface = typeof tvShowsTable.$inferSelect;
 export type MovieInterface = typeof moviesTable.$inferSelect;
 export type ReviewInterface = typeof reviewsTable.$inferSelect;
 export type BookmarkInterface = typeof bookmarksTable.$inferSelect;
 export type DownloadInterface = typeof downloadsTable.$inferSelect;
-export type WatchProgressInterface = typeof watchProgressTable.$inferSelect;
 export type UserInterface = typeof usersTable.$inferSelect;
 
 export type ContentWithDetails = ContentInterface & {
-  seasons?: (SeasonInterface & {
-    episodes?: EpisodeInterface[];
-  })[];
-  movie?: MovieInterface;
-  reviews?: ReviewInterface[];
+  movie: MovieInterface;
+  reviews: {
+    id: string;
+    createdAt: Date | null;
+    rating: number;
+    userId: string;
+    reviewText: string | null;
+    user: {
+      name: string | null;
+      username: string | null;
+    };
+  }[];
+  tvShow: TvShowInterface & {
+    seasons: (SeasonInterface & {
+      episodes: EpisodeInterface[];
+    })[];
+  };
 };
 
 export type SeasonWithEpisodes = SeasonInterface & {
   episodes: EpisodeInterface[];
+};
+
+export type BookmarksWithContent = BookmarkInterface & {
+  content: ContentInterface;
 };

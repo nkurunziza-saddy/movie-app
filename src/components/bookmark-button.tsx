@@ -1,88 +1,76 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Check, Plus } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useToggleBookmark } from "@/hooks/use-bookmarks";
+import { toast } from "sonner";
 
 interface BookmarkButtonProps {
-  movieId: string;
+  contentId: string;
+  isBookmarked: boolean;
+  showText?: boolean;
   className?: string;
 }
 
-export function BookmarkButton({ movieId, className }: BookmarkButtonProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
+export function BookmarkButton({
+  contentId,
+  isBookmarked,
+  showText = true,
+  className,
+}: BookmarkButtonProps) {
+  const [isOptimistic, setIsOptimistic] = useState(isBookmarked);
+  const toggleBookmark = useToggleBookmark();
 
-  useEffect(() => {
-    if (session) {
-      checkBookmarkStatus();
-    }
-  }, [session, movieId]);
-
-  const checkBookmarkStatus = async () => {
-    try {
-      const response = await fetch(`/api/bookmarks/check/${movieId}`);
-      if (response.ok) {
-        const { isBookmarked } = await response.json();
-        setIsBookmarked(isBookmarked);
-      }
-    } catch (error) {
-      console.error("Error checking bookmark status:", error);
-    }
-  };
-
-  const toggleBookmark = async () => {
-    if (!session) {
-      toast.error("Please sign in to bookmark movies");
-      return;
-    }
-
-    setIsLoading(true);
+  const handleToggle = async () => {
+    setIsOptimistic(!isOptimistic);
 
     try {
-      const response = await fetch(`/api/bookmarks/${movieId}`, {
-        method: isBookmarked ? "DELETE" : "POST",
+      const result = await toggleBookmark.mutateAsync(contentId);
+
+      toast(result ? "Bookmarked!" : "Bookmark removed!", {
+        description: result
+          ? "This movie has been added to your list."
+          : "This movie has been removed from your list.",
+        duration: 2000,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to update bookmark");
-      }
-
-      setIsBookmarked(!isBookmarked);
-      toast.success(isBookmarked ? "Bookmark removed" : "Movie bookmarked!");
     } catch (error) {
-      console.error("Bookmark error:", error);
-      toast.error("Failed to update bookmark");
-    } finally {
-      setIsLoading(false);
+      setIsOptimistic(isOptimistic);
+
+      toast.error("Error updating your list", {
+        description: "Failed to update bookmark",
+      });
     }
   };
-
-  if (!session) {
-    return null;
-  }
 
   return (
     <Button
-      variant="outline"
-      onClick={toggleBookmark}
-      disabled={isLoading}
+      variant={isOptimistic ? "default" : "outline"}
+      size="sm"
+      onClick={handleToggle}
+      disabled={toggleBookmark.isPending}
       className={cn("", className)}
     >
-      {isBookmarked ? (
-        <>
-          <Check className="mr-2 h-5 w-5" />
-          Added
-        </>
-      ) : (
-        <>
-          <Plus className="mr-2 h-5 w-5" />
+      <Bookmark
+        className={cn(
+          "mr-1 size-4",
+          isOptimistic
+            ? "fill-primary-foreground/90 text-primary-foreground/90"
+            : "text-muted-foreground hover:text-foreground"
+        )}
+      />
+      {showText && (
+        <span
+          className={cn(
+            "hidden sm:block",
+            isOptimistic
+              ? "text-primary-foreground/90"
+              : "text-muted-foreground"
+          )}
+        >
           My List
-        </>
+        </span>
       )}
     </Button>
   );

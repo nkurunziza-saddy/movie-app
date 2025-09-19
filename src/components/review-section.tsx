@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
+import { Star, Trash2 } from "lucide-react";
+import { useSession } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
+import { useCreateReview, useDeleteReview } from "@/hooks/use-reviews";
 
 interface ReviewSectionProps {
   contentId: string;
@@ -15,6 +16,7 @@ interface ReviewSectionProps {
     createdAt: Date | null;
     rating: number;
     reviewText: string | null;
+    userId: string;
     user: {
       name: string;
       username: string | null;
@@ -24,11 +26,18 @@ interface ReviewSectionProps {
 
 export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
   const [rating, setRating] = useState(0);
+  const [optimisticReviews, setOptimisticReviews] = useState(reviews);
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const createReview = useCreateReview();
+  const deleteReview = useDeleteReview();
   const { data: session } = useSession();
 
-  const submitReview = async () => {
+  useEffect(() => {
+    setOptimisticReviews(reviews);
+  }, [reviews]);
+
+  const handleCreate = async () => {
     if (!session) {
       toast.error("Please sign in to leave a review");
       return;
@@ -40,33 +49,63 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
     }
 
     setIsSubmitting(true);
+    const tempId = `temp-${Date.now()}`;
+    const newReview = {
+      id: tempId,
+      createdAt: new Date(),
+      rating: rating,
+      reviewText: reviewText,
+      userId: session.user.id,
+      user: {
+        name: session.user.name ?? "",
+        username: session.user.email ?? "",
+      },
+    };
+
+    setOptimisticReviews((prev) => [...prev, newReview]);
 
     try {
-      const response = await fetch(`/api/reviews/${contentId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          rating,
-          reviewText: reviewText.trim() || null,
-        }),
+      const result = await createReview.mutateAsync({
+        contentId: contentId,
+        rating: newReview.rating,
+        reviewText: newReview.reviewText,
+        userId: session!.user.id,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to submit review");
+      if (result === "ok") {
+        toast.success("Review added!", {
+          description: "Your review has been added.",
+          duration: 2000,
+        });
+        setRating(0);
+        setReviewText("");
+      } else {
+        toast.error("Error adding your review", {
+          description: result,
+        });
+        setOptimisticReviews((prev) => prev.filter((r) => r.id !== tempId));
       }
-
-      toast.success("Review submitted!");
-      setRating(0);
-      setReviewText("");
-      // Refresh the page to show new review
-      window.location.reload();
     } catch (error) {
-      console.error("Review error:", error);
-      toast.error("Failed to submit review");
+      setOptimisticReviews((prev) => prev.filter((r) => r.id !== tempId));
+      const message =
+        error instanceof Error ? error.message : "Failed to add review";
+      toast.error("Error adding your review", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (reviewId: string) => {
+    const previousReviews = optimisticReviews;
+    setOptimisticReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    try {
+      await deleteReview.mutateAsync(reviewId);
+      toast.success("Review deleted");
+    } catch (error) {
+      toast.error("Failed to delete review");
+      setOptimisticReviews(previousReviews);
     }
   };
 
@@ -74,7 +113,7 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Reviews ({reviews.length})</CardTitle>
+          <CardTitle>Reviews</CardTitle>
         </CardHeader>
         <CardContent>
           {session && (
@@ -88,10 +127,10 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
                     className="p-1"
                   >
                     <Star
-                      className={`h-5 w-5 ${
+                      className={`size-4 ${
                         star <= rating
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
+                          ? "fill-amber-400 dark:fill-amber-600 text-amber-400 dark:text-amber-600"
+                          : "text-muted-foreground"
                       }`}
                     />
                   </button>
@@ -104,7 +143,7 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
                 className="mb-3"
               />
               <Button
-                onClick={submitReview}
+                onClick={handleCreate}
                 disabled={isSubmitting || rating === 0}
               >
                 {isSubmitting ? "Submitting..." : "Submit Review"}
@@ -113,22 +152,22 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
           )}
 
           <div className="space-y-4">
-            {reviews.length === 0 ? (
+            {optimisticReviews.length === 0 ? (
               <p className="text-muted-foreground">
                 No reviews yet. Be the first to review!
               </p>
             ) : (
-              reviews.map((review) => (
+              optimisticReviews.map((review) => (
                 <div key={review.id} className="border-b pb-4 last:border-b-0">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`h-4 w-4 ${
+                          className={`size-3.5 ${
                             star <= review.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
+                              ? "fill-amber-400 dark:fill-amber-600 text-amber-400 dark:text-amber-600"
+                              : "text-muted-foreground"
                           }`}
                         />
                       ))}
@@ -142,6 +181,16 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
                       {review.createdAt &&
                         new Date(review.createdAt).toLocaleDateString()}
                     </span>
+                    {session?.user.id === review.userId && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(review.id)}
+                        className="ml-auto size-7"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    )}
                   </div>
                   {review.reviewText && (
                     <p className="text-muted-foreground">{review.reviewText}</p>

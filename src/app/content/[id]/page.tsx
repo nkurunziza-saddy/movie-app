@@ -1,27 +1,35 @@
-import {
-  getContentWithDetails,
-  getContentReviews,
-} from "@/lib/db/actions/queries";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Play, Share, Download, Eye, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Share, Download, Book, Edit2 } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ReviewSection } from "@/components/review-section";
 import Link from "next/link";
+import { format } from "date-fns";
+import { BookmarkButton } from "@/components/bookmark-button";
+import { checkBookmark } from "@/lib/actions/bookmarks-action";
+import { getContentWithDetails } from "@/lib/actions/content-query-action";
+import { ContentViewer } from "@/components/content-components/content-viewer";
+import { DownloadButton } from "@/components/download-button";
+import { getServerSession } from "@/lib/auth/server";
+import { DeleteContentButton } from "@/components/content-components/delete-content-button";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
-  const [content, reviews] = await Promise.all([
-    getContentWithDetails(id),
-    getContentReviews(id),
-  ]);
-
+  const session = await getServerSession();
+  const isBookmarked = await checkBookmark(id);
+  const content = await getContentWithDetails(id);
   if (!content) {
     notFound();
   }
 
-  const { movie, seasons } = content;
+  const { movie, tvShow, reviews } = content;
+
+  function calculateAverageRating() {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return total / reviews.length;
+  }
+
+  const averageRating = calculateAverageRating();
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -42,102 +50,45 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
   return (
     <div className="sm:max-w-[90rem] mx-auto">
       <div className="sticky top-4 z-50 flex justify-center pt-2">
-        <nav className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full p-1 border">
+        <nav className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-md p-1 border">
           {[
-            { name: "overview", icon: Play },
-            { name: "download", icon: Download },
-            { name: "reviews", icon: Star },
-          ].map(({ name, icon: Icon }) => (
+            { name: "overview" },
+            { name: "download" },
+            { name: "reviews" },
+          ].map(({ name }) => (
             <Link
               key={name}
               href={`#${name}`}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 capitalize"
+              className="flex items-center gap-1.5 px-4 py-1 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 capitalize"
             >
-              <Icon className="h-4 w-4" />
               {name}
             </Link>
           ))}
         </nav>
       </div>
 
-      <div className="relative h-[80vh] mx-2 sm:mx-4 mt-6 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="absolute inset-0">
-          <Image
-            src={content.posterUrl || "/placeholder.svg"}
-            alt={content.title}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-background/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
-        </div>
-
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-4xl px-8 lg:px-16">
-            <div className="max-w-2xl space-y-6">
-              <h1 className="text-4xl lg:text-6xl font-black text-foreground leading-tight tracking-tight">
-                {content.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold text-foreground">
-                    {Math.round(Number(content.averageRating) * 20)}% Match
-                  </span>
-                </div>
-                <span className="text-muted-foreground">
-                  {content.releaseYear}
-                </span>
-                {content.contentType === "movie" && movie && (
-                  <>
-                    <Badge variant="outline" className="text-xs">
-                      {movie.quality || "HD"}
-                    </Badge>
-                    <span className="text-muted-foreground">
-                      {formatDuration(movie.durationMinutes || 120)}
-                    </span>
-                  </>
-                )}
-                {content.contentType === "series" && (
-                  <Badge variant="outline" className="text-xs">
-                    {content.totalSeasons} Seasons
-                  </Badge>
-                )}
-              </div>
-
-              <p className="text-muted-foreground text-base lg:text-lg leading-relaxed max-w-xl">
-                {content.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {content.genre?.slice(0, 3).map((genre) => (
-                  <Badge key={genre} variant="secondary" className="text-xs">
-                    {genre}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ContentViewer
+        content={{
+          contentType: content.contentType,
+          description: content.description || "No description available.",
+          genre: content.genre ? content.genre : [],
+          id: content.id,
+          posterUrl: content.posterKey ?? "",
+          releaseYear: content.releaseYear || new Date().getFullYear(),
+          title: content.title,
+          trailerUrl: content.trailerKey || undefined,
+        }}
+      />
 
       <div id="download" className="max-w-4xl md:px-8 lg:px-16 py-4 md:py-12">
         <div className="flex flex-wrap items-center gap-4">
           {content.contentType === "movie" ? (
-            <Button
-              size={"sm"}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8"
-            >
-              <Download className="size-4 mr-2" />
-              Download Movie
-            </Button>
+            <DownloadButton movieId={movie.id} size={"sm"} />
           ) : (
             <div className="grid gap-4 w-full">
               <h3 className="text-xl font-semibold mb-4">Episodes</h3>
               <div className="grid gap-3">
-                {seasons?.map((season) =>
+                {tvShow.seasons?.map((season) =>
                   season.episodes.map((episode) => (
                     <div
                       key={episode.id}
@@ -150,9 +101,9 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                             {episode.description}
                           </p>
                         </div>
-                        <Button size="sm">
+                        <DownloadButton episodeId={episode.id} size={"sm"}>
                           <Download className="h-4 w-4" />
-                        </Button>
+                        </DownloadButton>
                       </div>
                     </div>
                   ))
@@ -162,9 +113,24 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
           )}
 
           <Button variant="outline" size="sm">
-            <Share className="size-4 mr-2" />
+            <Share className="size-4 mr-1" />
             Share
           </Button>
+          <BookmarkButton isBookmarked={isBookmarked} contentId={content.id} />
+          {session?.user?.email === process.env.ADMIN_EMAIL && (
+            <DeleteContentButton contentId={content.id} />
+          )}
+          {session?.user?.email === process.env.ADMIN_EMAIL && (
+            <Link
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+              })}
+              href={`/edit/${id}`}
+            >
+              <Edit2 />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -179,16 +145,13 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Upload Date</span>
                   <span className="font-medium text-foreground">
-                    {new Date(
-                      content.uploadDate || Date.now()
-                    ).toLocaleDateString()}
+                    {format(new Date(content.uploadDate!), "MMM dd, yyyy")}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Downloads</span>
                   <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
+                    <span className="text-sm text-foreground">
                       {formatNumber(content.downloadCount || 0)}
                     </span>
                   </div>
@@ -206,9 +169,8 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Rating</span>
                   <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-foreground">
-                      {content.averageRating}/5
+                      {averageRating}
                     </span>
                   </div>
                 </div>
