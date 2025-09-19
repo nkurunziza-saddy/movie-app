@@ -11,7 +11,7 @@ export function ContentCatalog({
   isBookmark = false,
 }: ContentCatalogProps) {
   return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
       {contents.map((ct) => (
         <ContentCard key={ct.id} content={ct} isBookmark={isBookmark} />
       ))}
@@ -21,7 +21,7 @@ export function ContentCatalog({
 
 export function ContentCatalogSkeleton() {
   return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="space-y-3">
           <div className="aspect-[2/3] bg-muted rounded-md animate-pulse" />
