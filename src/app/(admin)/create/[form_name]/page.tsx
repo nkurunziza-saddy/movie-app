@@ -17,7 +17,9 @@ export default async function CreatePage(
   const form_name = (await props.params).form_name;
   const formInfo = FORMS_DETAILS.find((m) => m.name == form_name);
 
-  if (!formInfo) notFound();
+  if (!formInfo) {
+    notFound();
+  }
 
   return (
     <div>

@@ -1,7 +1,6 @@
 "use server";
 import { db } from "../db/index";
-import { seasonsTable } from "../db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 
 export async function getSeasonsByTvShowId(tvShowId: string) {
   return await db.query.seasonsTable.findMany({
@@ -14,6 +13,7 @@ import {
   getPopularContent,
   getRecentContent,
 } from "./content-complex-filtering-action";
+import { seasonsTable } from "../db/schema";
 
 export const getContentWithDetails = async (id: string) => {
   return await db.query.contentTable.findFirst({

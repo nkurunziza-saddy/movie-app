@@ -34,6 +34,8 @@ import {
 import { createEpisode } from "@/lib/actions/content-mutations";
 import { toast } from "sonner";
 import { uploadFile } from "@/lib/helpers/upload-file";
+import FileUpload from "@/components/ui/file-upload";
+import { FileWithPreview } from "@/hooks/use-file-upload";
 import { Label } from "../ui/label";
 
 const episodeSchema = z.object({
@@ -50,7 +52,7 @@ type EpisodeActionData = z.infer<typeof episodeSchema> & {
 export function AddEpisodeForm() {
   const [selectedTvShowId, setSelectedTvShowId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<FileWithPreview[]>([]);
 
   const form = useForm<z.infer<typeof episodeSchema>>({
     resolver: zodResolver(episodeSchema as any),
@@ -77,14 +79,14 @@ export function AddEpisodeForm() {
     setIsSubmitting(true);
     toast.info("Starting episode creation...");
 
-    if (!videoFile) {
+    if (!videoFile[0]) {
       toast.error("Video file is required.");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const videoFileKey = await uploadFile(videoFile);
+      const videoFileKey = await uploadFile(videoFile[0].file as File);
       if (!videoFileKey) {
         toast.error("Video file failed to upload. Please try again.");
         setIsSubmitting(false);
@@ -98,12 +100,8 @@ export function AddEpisodeForm() {
       toast.success("Episode created successfully!");
 
       form.reset();
-      setVideoFile(null);
+      setVideoFile([]);
       setSelectedTvShowId(null);
-      const fileInput = document.querySelector(
-        'input[type="file"]'
-      ) as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
     } catch (error) {
       console.error("Failed to create episode:", error);
       toast.error("An error occurred during episode creation.");
@@ -259,19 +257,12 @@ export function AddEpisodeForm() {
             </FormItem>
           )}
         />
-        <FormItem>
-          <FormLabel>Video File</FormLabel>
-          <FormControl>
-            <Input
-              type="file"
-              accept="video/*"
-              onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
-              required
-              disabled={!form.watch("seasonId")}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+        <FileUpload
+          label="Video File"
+          onFilesChange={setVideoFile}
+          maxSize={1024 * 1024 * 500} // 500MB
+          accept="video/*"
+        />
         <Button
           type="submit"
           disabled={isSubmitting || !form.watch("seasonId")}

@@ -1,9 +1,4 @@
-import {
-  BookIcon,
-  InfoIcon,
-  LifeBuoyIcon,
-  MessageCircleMoreIcon,
-} from "lucide-react";
+import { InfoIcon, LifeBuoyIcon, MessageCircleMoreIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +11,9 @@ import {
 import Link from "next/link";
 
 export default function InfoMenu() {
+  const supportEmail = process.env.DEV_EMAIL;
+  const contactNumber = process.env.ADMIN_NUMBER;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -38,16 +36,7 @@ export default function InfoMenu() {
           className="cursor-pointer py-1 focus:bg-transparent focus:underline"
           asChild
         >
-          <Link href="/">
-            <BookIcon size={16} className="opacity-60" aria-hidden="true" />
-            Documentation
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer py-1 focus:bg-transparent focus:underline"
-          asChild
-        >
-          <Link href="/">
+          <Link href={`mailto:${supportEmail}`}>
             <LifeBuoyIcon size={16} className="opacity-60" aria-hidden="true" />
             Support
           </Link>
@@ -56,7 +45,7 @@ export default function InfoMenu() {
           className="cursor-pointer py-1 focus:bg-transparent focus:underline"
           asChild
         >
-          <Link href="/">
+          <Link href={`tel:${contactNumber}`}>
             <MessageCircleMoreIcon
               size={16}
               className="opacity-60"

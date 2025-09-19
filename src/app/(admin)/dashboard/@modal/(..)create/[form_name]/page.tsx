@@ -25,12 +25,14 @@ export default function Modal() {
   }, [router]);
 
   if (!form_name) {
-    return notFound();
+    notFound();
   }
 
   const formInfo = FORMS_DETAILS.find((m) => m.name == form_name);
 
-  if (!formInfo) notFound();
+  if (!formInfo) {
+    notFound();
+  }
 
   return (
     <div className="relative">

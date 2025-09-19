@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { R2Image } from "../r2-image";
+import { Skeleton } from "../ui/skeleton";
 
 interface FeatureCarouselProps {
   featuredContent: ContentInterface[];
@@ -109,7 +110,7 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
 export function FeaturedCarouselSkeleton() {
   return (
     <div className="w-full">
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-muted animate-pulse" />
+      <Skeleton className="relative h-32 rounded-lg bg-muted animate-pulse" />
     </div>
   );
 }

@@ -1,6 +1,12 @@
 {
-  "name": "All movies",
+  "name": "AllMovies",
   "short_name": "AM",
+  "description": "All movies is a collection site that allows you to download movies and TV shows.",
+  "start_url": "/",
+  "orientation": "portrait",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#2D3748",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -11,9 +17,27 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "shortcuts": [
+    {
+      "name": "Popular Movies",
+      "short_name": "Popular",
+      "description": "View movies that are currently popular",
+      "url": "/popular",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Bookmarks",
+      "short_name": "Bookmarks",
+      "description": "Access your bookmarked movies and shows",
+      "url": "/activity/bookmarks",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }

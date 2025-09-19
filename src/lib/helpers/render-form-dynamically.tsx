@@ -38,6 +38,6 @@ export function renderForm(name: string) {
     case "create-episode":
       return <AddEpisodeForm />;
     default:
-      return notFound();
+      return null;
   }
 }

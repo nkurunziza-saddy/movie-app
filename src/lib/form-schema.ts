@@ -15,7 +15,7 @@ export const movieSchema = z.object({
 });
 
 export const seasonSchema = z.object({
-  contentId: z.string().min(1, "Series is required"),
+  contentId: z.string().min(1, "Content is required"),
   seasonNumber: z.coerce.number().min(1, "Season number is required"),
   title: z.string().min(1, "Season title is required"),
 });

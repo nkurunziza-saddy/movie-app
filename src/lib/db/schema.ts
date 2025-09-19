@@ -107,7 +107,9 @@ export const contentTable = pgTable("content", {
   contentType: contentTypeEnum("content_type").notNull().default("movie"),
   status: contentStatusEnum("content_status").default("completed"),
   uploadDate: timestamp("upload_date").defaultNow(),
-  uploaderId: text("uploader_id").references(() => usersTable.id, { onDelete: "set null" }),
+  uploaderId: text("uploader_id").references(() => usersTable.id, {
+    onDelete: "set null",
+  }),
   downloadCount: integer("download_count").default(0),
   isActive: boolean("is_active").default(true),
 });
@@ -353,11 +355,23 @@ export type DownloadInterface = typeof downloadsTable.$inferSelect;
 export type UserInterface = typeof usersTable.$inferSelect;
 
 export type ContentWithDetails = ContentInterface & {
-  seasons?: (SeasonInterface & {
-    episodes?: EpisodeInterface[];
-  })[];
-  movie?: MovieInterface;
-  reviews?: ReviewInterface[];
+  movie: MovieInterface;
+  reviews: {
+    id: string;
+    createdAt: Date | null;
+    rating: number;
+    userId: string;
+    reviewText: string | null;
+    user: {
+      name: string | null;
+      username: string | null;
+    };
+  }[];
+  tvShow: TvShowInterface & {
+    seasons: (SeasonInterface & {
+      episodes: EpisodeInterface[];
+    })[];
+  };
 };
 
 export type SeasonWithEpisodes = SeasonInterface & {

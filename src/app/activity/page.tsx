@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Bookmark, Star, Calendar } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { getUserStats } from "@/lib/actions/stats-query-action";
 import { requireAuth } from "@/lib/auth/server";
 import { getBookmarks } from "@/lib/actions/bookmarks-action";

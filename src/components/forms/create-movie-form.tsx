@@ -24,82 +24,147 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { createMovie } from "@/lib/actions/content-mutations";
+import {
+  createMovie,
+  deleteContent,
+  updateMovie,
+} from "@/lib/actions/content-mutations";
 import { uploadFile } from "@/lib/helpers/upload-file";
 import { movieSchema } from "@/lib/form-schema";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import type { ContentWithDetails } from "@/lib/db/schema";
+import FileUpload from "@/components/ui/file-upload";
+import { FileWithPreview } from "@/hooks/use-file-upload";
 
-type MovieActionData = z.infer<typeof movieSchema> & {
-  posterKey: string;
-  backdropKey?: string;
-  movieFileKey: string;
+type MovieFormProps = {
+  initialData?: ContentWithDetails;
 };
 
-export function CreateMovieForm() {
+export function CreateMovieForm({ initialData }: MovieFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [posterFile, setPosterFile] = useState<File | null>(null);
-  const [backdropFile, setBackdropFile] = useState<File | null>(null);
-  const [movieFile, setMovieFile] = useState<File | null>(null);
+  const [posterFile, setPosterFile] = useState<FileWithPreview[]>([]);
+  const [backdropFile, setBackdropFile] = useState<FileWithPreview[]>([]);
+  const [movieFile, setMovieFile] = useState<FileWithPreview[]>([]);
+  const isEditMode = !!initialData;
 
   const form = useForm<z.infer<typeof movieSchema>>({
     resolver: zodResolver(movieSchema as any),
     defaultValues: {
-      title: "",
-      description: "",
-      genre: "",
-      releaseYear: undefined,
-      trailerUrl: "",
-      durationMinutes: undefined,
-      status: "completed",
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      genre: initialData?.genre?.join(", ") || "",
+      releaseYear: initialData?.releaseYear || undefined,
+      trailerUrl: initialData?.trailerKey || "",
+      durationMinutes: initialData?.movie?.durationMinutes || undefined,
+      status: initialData?.status || "completed",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof movieSchema>) => {
     setIsSubmitting(true);
-    toast.info("Starting movie creation process...");
+    toast.info(
+      isEditMode ? "Updating movie..." : "Starting movie creation process..."
+    );
 
-    if (!posterFile || !movieFile) {
-      toast.error("Poster and Movie File are required.");
+    if (!isEditMode && (!posterFile[0] || !movieFile[0])) {
+      toast.error("Poster and Movie File are required for new movies.");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const [posterKey, backdropKey, movieFileKey] = await Promise.all([
-        uploadFile(posterFile),
-        backdropFile ? uploadFile(backdropFile) : Promise.resolve(undefined),
-        uploadFile(movieFile),
-      ]);
+      let posterKey = initialData?.posterKey ?? undefined;
+      let backdropKey = initialData?.backdropKey ?? undefined;
+      let movieFileKey = initialData?.movie?.movieFileKey;
+
+      const uploadPromises: Promise<any>[] = [];
+      if (posterFile[0]) {
+        uploadPromises.push(
+          uploadFile(posterFile[0].file as File).then((key) => (posterKey = key))
+        );
+      }
+      if (backdropFile[0]) {
+        uploadPromises.push(
+          uploadFile(backdropFile[0].file as File).then(
+            (key) => (backdropKey = key)
+          )
+        );
+      }
+      if (movieFile[0]) {
+        uploadPromises.push(
+          uploadFile(movieFile[0].file as File).then(
+            (key) => (movieFileKey = key)
+          )
+        );
+      }
+
+      if (uploadPromises.length > 0) {
+        toast.info(`Uploading ${uploadPromises.length} file(s)...`);
+        await Promise.all(uploadPromises);
+      }
 
       if (!posterKey || !movieFileKey) {
-        toast.error("A required file failed to upload. Please try again.");
+        toast.error("A required file is missing or failed to upload.");
         setIsSubmitting(false);
         return;
       }
 
-      const actionData: MovieActionData = {
+      const actionData = {
         ...data,
         posterKey,
         backdropKey,
         movieFileKey,
       };
 
-      toast.success("Files uploaded! Now saving movie details...");
-
-      await createMovie(actionData);
-
-      toast.success("Movie created successfully!");
-      form.reset();
-      setPosterFile(null);
-      setBackdropFile(null);
-      setMovieFile(null);
-      const fileInputs = document.querySelectorAll('input[type="file"]');
-      fileInputs.forEach((input) => ((input as HTMLInputElement).value = ""));
+      if (isEditMode) {
+        toast.success("Files updated! Now saving movie details...");
+        await updateMovie(initialData.id, actionData);
+        toast.success("Movie updated successfully!");
+      } else {
+        toast.success("Files uploaded! Now saving movie details...");
+        await createMovie(actionData);
+        toast.success("Movie created successfully!");
+        form.reset();
+        setPosterFile([]);
+        setBackdropFile([]);
+        setMovieFile([]);
+      }
     } catch (error) {
-      console.error("Failed to create movie:", error);
-      toast.error("An error occurred during movie creation.");
+      console.error(
+        `Failed to ${isEditMode ? "update" : "create"} movie:`,
+        error
+      );
+      toast.error(
+        `An error occurred during movie ${isEditMode ? "update" : "creation"}.`
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!initialData) return;
+    setIsSubmitting(true);
+    toast.info("Deleting movie...");
+    try {
+      await deleteContent(initialData.id);
+      toast.success("Movie deleted successfully!");
+      // TODO: Redirect
+    } catch (error) {
+      console.error("Failed to delete movie:", error);
+      toast.error("An error occurred during movie deletion.");
     } finally {
       setIsSubmitting(false);
     }
@@ -110,7 +175,9 @@ export function CreateMovieForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-mono">Movie details</CardTitle>
+            <CardTitle className="text-sm font-mono">
+              {isEditMode ? "Edit Movie" : "Movie details"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -236,50 +303,60 @@ export function CreateMovieForm() {
               )}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormItem>
-                <FormLabel>Poster Image</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setPosterFile(e.target.files?.[0] ?? null)}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-              <FormItem>
-                <FormLabel>Backdrop Image</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setBackdropFile(e.target.files?.[0] ?? null)
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <FileUpload
+                label="Poster Image"
+                onFilesChange={setPosterFile}
+                accept="image/*"
+              />
+              <FileUpload
+                label="Backdrop Image"
+                onFilesChange={setBackdropFile}
+                accept="image/*"
+              />
             </div>
-            <FormItem>
-              <FormLabel>Movie File</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="video/*"
-                  onChange={(e) => setMovieFile(e.target.files?.[0] ?? null)}
-                  required
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <FileUpload
+              label="Movie File"
+              onFilesChange={setMovieFile}
+              accept="video/*"
+              maxSize={1024 * 1024 * 500} // 500MB
+            />
           </CardContent>
         </Card>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          {isEditMode && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="lg">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Movie
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the movie and all its associated data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button type="submit" size="lg" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSubmitting ? "Uploading..." : "Create Movie"}
+            {isEditMode
+              ? isSubmitting
+                ? "Updating..."
+                : "Update Movie"
+              : isSubmitting
+              ? "Uploading..."
+              : "Create Movie"}
           </Button>
         </div>
       </form>

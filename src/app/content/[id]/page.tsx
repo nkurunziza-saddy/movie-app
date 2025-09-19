@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { Share, Download, Book } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Share, Download, Book, Edit2 } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ReviewSection } from "@/components/review-section";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -9,9 +9,12 @@ import { checkBookmark } from "@/lib/actions/bookmarks-action";
 import { getContentWithDetails } from "@/lib/actions/content-query-action";
 import { ContentViewer } from "@/components/content-components/content-viewer";
 import { DownloadButton } from "@/components/download-button";
+import { getServerSession } from "@/lib/auth/server";
+import { DeleteContentButton } from "@/components/content-components/delete-content-button";
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
+  const session = await getServerSession();
   const isBookmarked = await checkBookmark(id);
   const content = await getContentWithDetails(id);
   if (!content) {
@@ -114,6 +117,20 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
             Share
           </Button>
           <BookmarkButton isBookmarked={isBookmarked} contentId={content.id} />
+          {session?.user?.email === process.env.ADMIN_EMAIL && (
+            <DeleteContentButton contentId={content.id} />
+          )}
+          {session?.user?.email === process.env.ADMIN_EMAIL && (
+            <Link
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+              })}
+              href={`/edit/${id}`}
+            >
+              <Edit2 />
+            </Link>
+          )}
         </div>
       </div>
 
