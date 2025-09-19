@@ -102,7 +102,7 @@ function EpisodeFields({
     <div className="space-y-4">
       <Separator className="my-6" />
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-mono">Episodes</h3>
+        <h3 className="text-sm ">Episodes</h3>
         <Button
           type="button"
           variant="outline"
@@ -361,7 +361,7 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-mono">
+            <CardTitle className="text-sm ">
               {isEditMode ? "Edit TV Show" : "TV Show Details"}
             </CardTitle>
           </CardHeader>
@@ -483,9 +483,7 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
           {fields.map((field, index) => (
             <Card key={field.id}>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-mono">
-                  Season {index + 1}
-                </CardTitle>
+                <CardTitle className="text-sm ">Season {index + 1}</CardTitle>
                 <Button
                   type="button"
                   variant="destructive"

@@ -1,13 +1,13 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { THEME_OPTIONS } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export function ThemeToggler() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <Card>
@@ -16,19 +16,20 @@ export function ThemeToggler() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2">
-          {THEME_OPTIONS.map((option) => (
+          {["system", ...THEME_OPTIONS].map((option) => (
             <Button
               key={option}
-              variant={"ghost"}
+              variant={resolvedTheme === option ? "secondary" : "ghost"}
               size={"sm"}
               onClick={() => {
                 setTheme(option);
               }}
-              className={
-                theme === option
-                  ? "bg-accent text-accent-foreground border"
-                  : ""
-              }
+              className={cn(
+                resolvedTheme === option
+                  ? "bg-none text-foreground-foreground border-2"
+                  : "",
+                "hover:bg-transparent w-fit hover:text-foreground/70 cursor-pointer"
+              )}
               aria-label={`Select ${option} theme`}
             >
               <span className="capitalize">{option}</span>

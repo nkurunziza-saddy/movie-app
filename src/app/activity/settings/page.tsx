@@ -13,7 +13,7 @@ export default async function SettingsPage() {
         <div className="py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-mono font-medium text-foreground">
+              <h1 className="text-lg  font-medium text-foreground">
                 Account Settings
               </h1>
               <p className="text-sm text-muted-foreground mt-1">

@@ -92,7 +92,9 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
       const uploadPromises: Promise<any>[] = [];
       if (posterFile[0]) {
         uploadPromises.push(
-          uploadFile(posterFile[0].file as File).then((key) => (posterKey = key))
+          uploadFile(posterFile[0].file as File).then(
+            (key) => (posterKey = key)
+          )
         );
       }
       if (backdropFile[0]) {
@@ -175,7 +177,7 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-mono">
+            <CardTitle className="text-sm ">
               {isEditMode ? "Edit Movie" : "Movie details"}
             </CardTitle>
           </CardHeader>

@@ -17,7 +17,7 @@ export default async function DownloadsPage() {
         <div className="py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-mono font-medium text-foreground">
+              <h1 className="text-lg  font-medium text-foreground">
                 Download History
               </h1>
               <p className="text-sm text-muted-foreground mt-1">

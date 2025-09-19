@@ -53,7 +53,7 @@ export default function DashboardPage() {
         <div className="py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-lg font-mono font-medium text-foreground">
+              <h1 className="text-lg  font-medium text-foreground">
                 Content Dashboard
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
@@ -84,50 +84,42 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="bg-card/50 border-border/40">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-mono text-muted-foreground">
+              <CardTitle className="text-sm  text-muted-foreground">
                 Total Movies
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-mono font-bold">
-                {stats?.totalMovies}
-              </div>
+              <div className="text-2xl  font-bold">{stats?.totalMovies}</div>
             </CardContent>
           </Card>
           <Card className="bg-card/50 border-border/40">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-mono text-muted-foreground">
+              <CardTitle className="text-sm  text-muted-foreground">
                 Total TV Shows
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-mono font-bold">
-                {stats?.totalTvShows}
-              </div>
+              <div className="text-2xl  font-bold">{stats?.totalTvShows}</div>
             </CardContent>
           </Card>
           <Card className="bg-card/50 border-border/40">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-mono text-muted-foreground">
+              <CardTitle className="text-sm  text-muted-foreground">
                 Total Users
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-mono font-bold">
-                {stats?.totalUsers}
-              </div>
+              <div className="text-2xl  font-bold">{stats?.totalUsers}</div>
             </CardContent>
           </Card>
           <Card className="bg-card/50 border-border/40">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-mono text-muted-foreground">
+              <CardTitle className="text-sm  text-muted-foreground">
                 Total Downloads
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-mono font-bold">
-                {stats?.totalDownloads}
-              </div>
+              <div className="text-2xl  font-bold">{stats?.totalDownloads}</div>
             </CardContent>
           </Card>
         </div>
@@ -135,7 +127,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <Card className="bg-card/50 border-border/40">
             <CardHeader>
-              <CardTitle className="font-mono">Recently Added</CardTitle>
+              <CardTitle className="">Recently Added</CardTitle>
               <CardDescription>The latest movies and TV shows.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -168,7 +160,7 @@ export default function DashboardPage() {
 
           <Card className="bg-card/50 border-border/40">
             <CardHeader>
-              <CardTitle className="font-mono">Most Popular</CardTitle>
+              <CardTitle className="">Most Popular</CardTitle>
               <CardDescription>Top downloaded content.</CardDescription>
             </CardHeader>
             <CardContent>

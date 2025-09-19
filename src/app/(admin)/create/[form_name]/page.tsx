@@ -27,7 +27,7 @@ export default async function CreatePage(
         <div className="py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-mono font-medium text-foreground">
+              <h1 className="text-lg  font-medium text-foreground">
                 {formInfo.title}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">

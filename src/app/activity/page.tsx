@@ -22,9 +22,7 @@ export default async function ActivityPage() {
         <div className="py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-mono font-medium text-foreground">
-                Activity
-              </h1>
+              <h1 className="text-lg  font-medium text-foreground">Activity</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Manage your movies and account settings
               </p>

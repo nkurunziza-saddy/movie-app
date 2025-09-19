@@ -11,7 +11,7 @@ const layout = (props: LayoutProps<"/auth">) => {
       <div className="flex flex-col gap-4 min-h-screen w-full items-center justify-center p-4">
         <div className="flex gap-2 items-center">
           <Logo />
-          <h2 className="text-lg font-semibold font-mono">AllMovies</h2>
+          <h2 className="text-lg font-semibold ">AllMovies</h2>
         </div>
         <Card className="w-full max-w-md">
           <DynamicAuthHeader />

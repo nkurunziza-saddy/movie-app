@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { IBM_Plex_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/navbar-components/navigation-header";
@@ -12,6 +13,28 @@ const geistSans = localFont({
   variable: "--font-geist",
   display: "swap",
   preload: true,
+  fallback: ["system-ui", "arial"],
+  adjustFontFallback: false, // Prevents layout shifts from font fallbacks
+});
+
+const IbmMono = IBM_Plex_Mono({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-ibm",
+  display: "swap",
+  subsets: ["latin"],
+  fallback: ["monospace"],
+  adjustFontFallback: false,
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-jetbrains",
+  display: "swap",
+  subsets: ["latin"],
+  fallback: ["monospace"],
+  adjustFontFallback: false,
 });
 
 const geistMono = localFont({
@@ -19,6 +42,8 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   display: "swap",
   preload: true,
+  fallback: ["monospace"],
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -33,16 +58,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${jetBrainsMono.variable} ${IbmMono.variable} ${geistMono.variable}`}
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              try {
+                try {
                 if (localStorage.theme === 'dark' || ((!('theme' in localStorage) || localStorage.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                   document.querySelector('meta[name="theme-color"]').setAttribute('content', '${META_THEME_COLORS.dark}')
-                }
-                if (localStorage.layout) {
+                  }
+                  if (localStorage.layout) {
                   document.documentElement.classList.add('layout-' + localStorage.layout)
                 }
               } catch (_) {}
@@ -52,7 +82,11 @@ export default function RootLayout({
         <meta name="theme-color" content={META_THEME_COLORS.light} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`min-h-screen`}
+        style={{
+          fontOpticalSizing: "auto",
+          fontVariationSettings: "normal",
+        }}
       >
         <Providers>
           <div className="min-h-screen bg-background">

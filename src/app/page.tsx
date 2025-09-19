@@ -70,7 +70,7 @@ async function HomeCatalog({
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className="font-mono font-medium text-foreground">{title}</h2>
+      <h2 className=" font-medium text-foreground">{title}</h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -82,9 +82,7 @@ async function PopularTvCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className="font-mono font-medium text-foreground">
-        Popular TV Shows
-      </h2>
+      <h2 className=" font-medium text-foreground">Popular TV Shows</h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -95,7 +93,7 @@ async function PopularMovieCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className="font-mono font-medium text-foreground">Popular Movies</h2>
+      <h2 className=" font-medium text-foreground">Popular Movies</h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -106,7 +104,7 @@ async function RecentTvCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className="font-mono font-medium text-foreground">Recent TV Shows</h2>
+      <h2 className=" font-medium text-foreground">Recent TV Shows</h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -117,7 +115,7 @@ async function RecentMovieCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className="font-mono font-medium text-foreground">Recent Movies</h2>
+      <h2 className=" font-medium text-foreground">Recent Movies</h2>
       <ContentCatalog contents={content} />
     </div>
   );
