@@ -6,7 +6,7 @@ import { signIn, useSession } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
 import { LoaderIcon } from "lucide-react";
 import { redirect } from "next/navigation";
-import SignInForm from "./sign-in-form";
+import SignInForm from "@/components/auth-components/sign-in-form";
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
