@@ -39,7 +39,7 @@ function DynamicAuthFooter() {
   if (pathname === "/auth/signin") {
     return (
       <CardFooter className="text-center text-xs md:text-sm">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/auth/signup"
           className="text-primary hover:underline ml-1 hover:underline-offset-4"

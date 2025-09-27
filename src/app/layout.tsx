@@ -14,7 +14,7 @@ const geistSans = localFont({
   display: "swap",
   preload: true,
   fallback: ["system-ui", "arial"],
-  adjustFontFallback: false, // Prevents layout shifts from font fallbacks
+  adjustFontFallback: false,
 });
 
 const IbmMono = IBM_Plex_Mono({
