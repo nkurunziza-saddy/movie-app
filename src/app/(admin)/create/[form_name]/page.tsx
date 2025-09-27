@@ -6,6 +6,15 @@ import { requireAdmin } from "@/lib/auth/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+export async function generateStaticParams() {
+  return [
+    { form_name: "create-movie" },
+    { form_name: "create-show" },
+    { form_name: "create-season" },
+    { form_name: "create-episode" },
+  ];
+}
+
 export default async function CreatePage(
   props: PageProps<"/create/[form_name]">
 ) {

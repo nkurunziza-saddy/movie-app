@@ -15,6 +15,15 @@ import {
 } from "./content-complex-filtering-action";
 import { seasonsTable } from "../db/schema";
 
+export async function getAllContentIds() {
+  const content = await db.query.contentTable.findMany({
+    columns: {
+      id: true,
+    },
+  });
+  return content;
+}
+
 export const getContentWithDetails = async (id: string) => {
   return await db.query.contentTable.findFirst({
     where: (contentTable, { eq }) => eq(contentTable.id, id),

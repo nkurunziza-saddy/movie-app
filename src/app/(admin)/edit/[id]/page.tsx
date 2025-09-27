@@ -1,9 +1,19 @@
 import { notFound } from "next/navigation";
-import { getContentWithDetails } from "@/lib/actions/content-query-action";
+import {
+  getAllContentIds,
+  getContentWithDetails,
+} from "@/lib/actions/content-query-action";
 import { CreateMovieForm } from "@/components/forms/create-movie-form";
 import { CreateTvShowForm } from "@/components/forms/create-tv-show-form";
 import { requireAdmin } from "@/lib/auth/server";
 import Link from "next/link";
+
+export async function generateStaticParams() {
+  const content = await getAllContentIds();
+  return content.map((c) => ({
+    id: c.id,
+  }));
+}
 
 export default async function EditContentPage(props: PageProps<"/edit/[id]">) {
   await requireAdmin();

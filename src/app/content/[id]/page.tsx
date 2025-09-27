@@ -6,11 +6,21 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { BookmarkButton } from "@/components/bookmark-button";
 import { checkBookmark } from "@/lib/actions/bookmarks-action";
-import { getContentWithDetails } from "@/lib/actions/content-query-action";
+import {
+  getAllContentIds,
+  getContentWithDetails,
+} from "@/lib/actions/content-query-action";
 import { ContentViewer } from "@/components/content-components/content-viewer";
 import { DownloadButton } from "@/components/download-button";
 import { getServerSession } from "@/lib/auth/server";
 import { DeleteContentButton } from "@/components/content-components/delete-content-button";
+
+export async function generateStaticParams() {
+  const content = await getAllContentIds();
+  return content.map((c) => ({
+    id: c.id,
+  }));
+}
 
 export default async function ContentPage(props: PageProps<"/content/[id]">) {
   const { id } = await props.params;
