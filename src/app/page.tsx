@@ -16,6 +16,7 @@ import {
   FeaturedCarousel,
   FeaturedCarouselSkeleton,
 } from "@/components/content-components/featured-carousel";
+import { InstallPrompt } from "@/lib/install-prompt";
 
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
@@ -48,6 +49,7 @@ export default async function Home(props: PageProps<"/">) {
           </>
         )}
       </div>
+      <InstallPrompt />
     </main>
   );
 }
