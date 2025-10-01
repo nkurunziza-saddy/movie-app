@@ -58,7 +58,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <meta name="theme-color" content={META_THEME_COLORS.light} />
+        <meta name="theme-color" content={META_THEME_COLORS.dark} />
       </head>
       <body
         className={`min-h-screen`}
@@ -71,7 +71,7 @@ export default function RootLayout({
           <div className="min-h-screen">
             <Header />
             <main className="container mx-auto px-4 py-8">{children}</main>
-            <Toaster position="top-center" className="rounded-md" richColors />
+            <Toaster className="rounded-md" />
           </div>
         </Providers>
         <Analytics />

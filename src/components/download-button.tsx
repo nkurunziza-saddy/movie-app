@@ -36,7 +36,6 @@ export function DownloadButton({
     }
 
     setIsDownloading(true);
-    toast.info("Preparing your download...");
 
     try {
       const result = await downloadContentAction({ movieId, episodeId });
