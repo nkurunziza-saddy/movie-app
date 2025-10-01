@@ -8,15 +8,28 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Search } from "lucide-react";
+import { Equal } from "lucide-react";
 import Link from "next/link";
 import CreateFormQuickLinks from "./quick-create-links";
+import { ThemeTogglerResponsive } from "../settings-components/theme-toggler-responsive";
 import { getServerSession } from "@/lib/auth/server";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
 const navigationLinks = [
   { href: "/", label: "home" },
@@ -43,55 +56,6 @@ export default async function Header() {
     <header className="border-b ">
       <div className="flex h-16 items-center justify-between gap-4 container mx-auto px-4">
         <div className="flex items-center gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                className="group size-8 md:hidden"
-                variant="ghost"
-                size="icon"
-              >
-                <svg
-                  className="pointer-events-none"
-                  width={16}
-                  height={16}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4 12L20 12"
-                    className="origin-center -translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
-                  />
-                  <path
-                    d="M4 12H20"
-                    className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
-                  />
-                  <path
-                    d="M4 12H20"
-                    className="origin-center translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[135deg]"
-                  />
-                </svg>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-36 p-1 md:hidden">
-              <NavigationMenu className="max-w-none *:w-full">
-                <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
-                  {navigationLinks.map((link, index) => (
-                    <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink href={link.href} className="py-1.5">
-                        {link.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </PopoverContent>
-          </Popover>
-
           <div className="flex items-center gap-6">
             <Link href="/" className="text-primary hover:text-primary/90">
               <Logo />
@@ -113,23 +77,86 @@ export default async function Header() {
             </NavigationMenu>
           </div>
         </div>
-        {session ? (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <InfoMenu />
-              {session.user.email === process.env.ADMIN_EMAIL && (
-                <CreateFormQuickLinks />
-              )}
+
+        <div className="flex items-center gap-4">
+          <Sheet>
+            <SheetTrigger className="group size-10 md:hidden">
+              <Button size={"icon"} variant={"ghost"}>
+                <Equal />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="md:hidden" side="left">
+              <SheetHeader className="border-b">
+                <SheetTitle>All Movies</SheetTitle>
+                <SheetDescription>
+                  A collection site that allows you to download movies and TV
+                  shows.
+                </SheetDescription>
+              </SheetHeader>
+              <NavigationMenu className="max-w-none *:w-full flex flex-col items-center justify-start">
+                <NavigationMenuList className="flex-col px-2 items-start gap-2 md:gap-2">
+                  {navigationLinks.map((link, index) => (
+                    <NavigationMenuItem key={index} className="w-full">
+                      <NavigationMenuLink
+                        href={link.href}
+                        className="py-1.5 text-2xl"
+                      >
+                        {link.label}
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+              <SheetFooter>
+                {session ? (
+                  <ThemeTogglerResponsive />
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <ThemeTogglerResponsive />
+                    <Card className="gap-2 py-4 shadow-none card-glass">
+                      <CardHeader className="px-4 border-b border-b-input">
+                        <CardTitle className="">Sign in</CardTitle>
+                        <CardDescription>
+                          Sign in to get more features
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="px-4">
+                        <div className="flex text-sm flex-col text-foreground/85 gap-0.5">
+                          <li className="">Bookmarking</li>
+                          <li className="">Specific suggestions</li>
+                          <li className="">Record your activities</li>
+                          <li className="">and many more</li>
+                        </div>
+                        <CardFooter className="px-0 mt-3">
+                          <Button asChild>
+                            <Link href="/auth/signin">Sign In</Link>
+                          </Button>
+                        </CardFooter>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+          {session ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <InfoMenu />
+                {session.user.email === process.env.ADMIN_EMAIL && (
+                  <CreateFormQuickLinks />
+                )}
+              </div>
+              <UserMenu user={session.user} />
             </div>
-            <UserMenu user={session.user} />
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" className="text-sm">
-              <Link href="/auth/signin">Sign In</Link>
-            </Button>
-          </div>
-        )}
+          ) : (
+            <div className="md:flex hidden items-center gap-2">
+              <Button asChild size="sm" className="text-sm">
+                <Link href="/auth/signin">Sign In</Link>
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

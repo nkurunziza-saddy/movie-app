@@ -78,12 +78,12 @@ export function DownloadButton({
       {isDownloading ? (
         <>
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Preparing...</span>
+          Preparing...
         </>
       ) : (
         <>
           <Download className="h-4 w-4" />
-          <span>Download</span>
+          Download
         </>
       )}
     </Button>

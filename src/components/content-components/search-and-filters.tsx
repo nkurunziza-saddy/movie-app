@@ -42,7 +42,7 @@ export function SearchAndFilters() {
   );
 
   const updateQueryString = (newParams: URLSearchParams) => {
-    router.replace(`/?${newParams.toString()}`);
+    router.replace(`/?${newParams.toString()}`, { scroll: false });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +80,7 @@ export function SearchAndFilters() {
   };
 
   const clearFilters = () => {
-    router.replace("/");
+    router.replace("/", { scroll: false });
   };
 
   const removeType = (content_type: string) => {
@@ -154,13 +154,13 @@ export function SearchAndFilters() {
       </div>
 
       {showFilters && (
-        <Card>
-          <CardContent className="space-y-3">
+        <Card className="w-full">
+          <CardContent className="space-y-4 p-4">
             <div>
-              <h3 className="font-medium text-sm text-card-foreground mb-2">
+              <h3 className="font-medium text-base text-card-foreground mb-3">
                 Content type
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {["movie", "tv"].map((content_type) => (
                   <Button
                     key={content_type}
@@ -179,10 +179,10 @@ export function SearchAndFilters() {
               </div>
             </div>
             <div>
-              <h3 className="font-medium text-sm text-card-foreground mb-2">
+              <h3 className="font-medium text-base text-card-foreground mb-3">
                 Genres
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {genres.map((genre) => (
                   <Button
                     key={genre}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { IBM_Plex_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/navbar-components/navigation-header";
@@ -14,26 +13,6 @@ const geistSans = localFont({
   display: "swap",
   preload: true,
   fallback: ["system-ui", "arial"],
-  adjustFontFallback: false,
-});
-
-const IbmMono = IBM_Plex_Mono({
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-ibm",
-  display: "swap",
-  subsets: ["latin"],
-  fallback: ["monospace"],
-  adjustFontFallback: false,
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-jetbrains",
-  display: "swap",
-  subsets: ["latin"],
-  fallback: ["monospace"],
   adjustFontFallback: false,
 });
 
@@ -62,7 +41,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${jetBrainsMono.variable} ${IbmMono.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <head>
         <script
@@ -89,7 +68,7 @@ export default function RootLayout({
         }}
       >
         <Providers>
-          <div className="min-h-screen bg-background">
+          <div className="min-h-screen">
             <Header />
             <main className="container mx-auto px-4 py-8">{children}</main>
             <Toaster position="top-center" className="rounded-md" richColors />

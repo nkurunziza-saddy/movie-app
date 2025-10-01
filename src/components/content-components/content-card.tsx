@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { type ContentInterface } from "@/lib/db/schema";
 import { Bookmark } from "lucide-react";
@@ -35,7 +34,7 @@ export function ContentCard({ content, isBookmark = false }: ContentCardProps) {
       )}
 
       <div className="p-1.5 space-y-0.5">
-        <div className="font-medium line-clamp-2 text-xs leading-tight">
+        <div className="font-medium line-clamp-1 text-xs leading-tight">
           {content.title}
         </div>
         <div className="flex gap-2">

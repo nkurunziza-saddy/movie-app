@@ -45,7 +45,7 @@ export function ContentViewer({ content }: ContentViewerProps) {
     : null;
 
   return (
-    <div className="relative h-[70vh] sm:h-[80vh] sm:mx-4 mt-6 sm:rounded-2xl overflow-hidden shadow-2xl">
+    <div className="relative h-[50vh] sm:h-[80vh] sm:mx-4 mt-6 sm:rounded-2xl overflow-hidden shadow-2xl">
       <div className="absolute inset-0">
         <R2Image
           objectKey={content.posterUrl}
@@ -78,14 +78,14 @@ export function ContentViewer({ content }: ContentViewerProps) {
       </div>
 
       <div className="relative z-10 h-full flex items-end">
-        <div className="w-full max-w-4xl px-4 sm:px-8 lg:px-16">
+        <div className="w-full max-w-4xl px-2 sm:px-8 lg:px-16">
           <div className="max-w-2xl space-y-3 md:space-y-4 pb-8 md:pb-12">
-            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight text-balance">
+            <h1 className="text-lg sm:text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight text-balance">
               {content.title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-4 text-sm">
-              <span className="text-muted-foreground text-xs sm:text-sm">
+              <span className="text-muted-foreground text-sm">
                 {content.releaseYear}
               </span>
               <Badge variant="outline" className="text-xs">
@@ -93,7 +93,7 @@ export function ContentViewer({ content }: ContentViewerProps) {
               </Badge>
             </div>
 
-            <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed max-w-xl line-clamp-3 md:line-clamp-4">
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xl line-clamp-3 md:line-clamp-4">
               {content.description}
             </p>
 

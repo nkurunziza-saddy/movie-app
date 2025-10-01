@@ -148,10 +148,10 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
         <div className="grid lg:grid-cols-3 gap-8">
           <div id="overview" className="lg:col-span-1">
             <div className="bg-card rounded-md p-6 border">
-              <h3 className="font-medium mb-6 flex items-center gap-2">
+              <h3 className="font-medium text-base mb-6 flex items-center gap-2">
                 Details
               </h3>
-              <div className="space-y-4">
+              <div className="**:text-base space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Upload Date</span>
                   <span className="font-medium text-foreground">

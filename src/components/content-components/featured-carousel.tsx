@@ -29,7 +29,7 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
   }
 
   return (
-    <div className="relative w-full h-[70vh] sm:h-[63vh] overflow-hidden rounded-lg">
+    <div className="relative w-full h-[50vh] sm:h-[63vh] overflow-hidden rounded-lg">
       <div className="absolute inset-0">
         {featuredContent.map((content, index) => (
           <R2Image
@@ -48,7 +48,7 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-      <div className="absolute bottom-0 left-0 right-0 flex flex-col justify-end bg-gradient-to-t from-black/95 to-transparent p-4 sm:p-8">
+      <div className="absolute bottom-0 left-0 right-0 flex flex-col justify-end bg-gradient-to-t from-black/95 to-transparent p-2 sm:p-8">
         <div className="grid max-w-2xl">
           {featuredContent.map((content, index) => (
             <div
@@ -72,14 +72,17 @@ export function FeaturedCarousel({ featuredContent }: FeatureCarouselProps) {
                     {t}
                   </Badge>
                 ))}
-                <Badge variant={"secondary"} className="capitalize text-xs">
+                <Badge
+                  variant={"secondary"}
+                  className="capitalize hidden sm:block text-xs"
+                >
                   {content.status}
                 </Badge>
               </div>
-              <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 text-balance">
+              <h2 className="text-base sm:text-xl font-bold text-foreground mb-2 text-balance">
                 {content.title}
               </h2>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed max-w-md sm:max-w-xl line-clamp-2 sm:line-clamp-3">
+              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-md sm:max-w-xl line-clamp-3 sm:line-clamp-3">
                 {content.description}
               </p>
             </div>

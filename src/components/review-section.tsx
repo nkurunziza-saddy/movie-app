@@ -110,7 +110,7 @@ export function ReviewSection({ contentId, reviews }: ReviewSectionProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 **:text-base">
       <Card>
         <CardHeader>
           <CardTitle>Reviews</CardTitle>

@@ -16,7 +16,6 @@ import {
   FeaturedCarousel,
   FeaturedCarouselSkeleton,
 } from "@/components/content-components/featured-carousel";
-import { InstallPrompt } from "@/lib/install-prompt";
 
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
@@ -49,7 +48,6 @@ export default async function Home(props: PageProps<"/">) {
           </>
         )}
       </div>
-      <InstallPrompt />
     </main>
   );
 }
@@ -72,7 +70,7 @@ async function HomeCatalog({
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className=" font-medium text-foreground">{title}</h2>
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -84,7 +82,9 @@ async function PopularTvCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className=" font-medium text-foreground">Popular TV Shows</h2>
+      <h2 className="text-base font-semibold text-foreground">
+        Popular TV Shows
+      </h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -95,7 +95,9 @@ async function PopularMovieCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className=" font-medium text-foreground">Popular Movies</h2>
+      <h2 className="text-base font-semibold text-foreground">
+        Popular Movies
+      </h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -106,7 +108,9 @@ async function RecentTvCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className=" font-medium text-foreground">Recent TV Shows</h2>
+      <h2 className="text-base font-semibold text-foreground">
+        Recent TV Shows
+      </h2>
       <ContentCatalog contents={content} />
     </div>
   );
@@ -117,7 +121,7 @@ async function RecentMovieCatalog() {
   return (
     <div className="space-y-6">
       <Separator />
-      <h2 className=" font-medium text-foreground">Recent Movies</h2>
+      <h2 className="text-base font-semibold text-foreground">Recent Movies</h2>
       <ContentCatalog contents={content} />
     </div>
   );

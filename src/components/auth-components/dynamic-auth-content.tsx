@@ -15,7 +15,7 @@ const DynamicAuthHeader = () => {
     return (
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
+        <CardDescription className="text-sm md:text-sm">
           Enter your email and password to sign in
         </CardDescription>
       </CardHeader>
@@ -25,7 +25,7 @@ const DynamicAuthHeader = () => {
     return (
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
+        <CardDescription className="text-sm">
           Enter your information to create an account
         </CardDescription>
       </CardHeader>
@@ -38,11 +38,11 @@ function DynamicAuthFooter() {
   const pathname = usePathname();
   if (pathname === "/auth/signin") {
     return (
-      <CardFooter className="text-center text-xs md:text-sm">
+      <CardFooter className="text-center text-sm md:text-sm">
         Don&apos;t have an account?{" "}
         <Link
           href="/auth/signup"
-          className="text-primary hover:underline ml-1 hover:underline-offset-4"
+          className="text-primary hover:underline text-sm ml-1 hover:underline-offset-4"
         >
           Sign Up
         </Link>
@@ -51,11 +51,11 @@ function DynamicAuthFooter() {
   }
   if (pathname === "/auth/signup") {
     return (
-      <CardFooter className="text-center text-xs md:text-sm">
+      <CardFooter className="text-center text-sm md:text-sm">
         Already have an account?{" "}
         <Link
           href="/auth/signin"
-          className="text-primary hover:underline ml-1 hover:underline-offset-4"
+          className="text-primary hover:underline text-sm ml-1 hover:underline-offset-4"
         >
           Sign In
         </Link>

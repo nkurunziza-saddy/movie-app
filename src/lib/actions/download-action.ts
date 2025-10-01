@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { downloadsTable, moviesTable, episodesTable } from "@/lib/db/schema";
-import { requireAuth } from "@/lib/auth/server";
+import { getServerSession, requireAuth } from "@/lib/auth/server";
 import { getPresignedUrl } from "./r2-actions";
 import { eq } from "drizzle-orm";
 
@@ -15,7 +15,7 @@ export async function downloadContentAction({
   movieId,
   episodeId,
 }: DownloadActionProps) {
-  const session = await requireAuth();
+  const session = await getServerSession();
 
   if (!movieId && !episodeId) {
     throw new Error("A movie ID or episode ID must be provided.");
@@ -78,7 +78,7 @@ export async function downloadContentAction({
 
   db.insert(downloadsTable)
     .values({
-      userId: session.user.id,
+      userId: session?.user.id ?? "unregistered",
       contentId: contentId,
       movieId: movieId,
       episodeId: episodeId,

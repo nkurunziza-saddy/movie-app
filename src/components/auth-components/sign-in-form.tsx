@@ -76,11 +76,7 @@ export default function SignInForm() {
           );
         }}
       >
-        {loading ? (
-          <Loader2 size={16} className="animate-spin" />
-        ) : (
-          <p> Login </p>
-        )}
+        {loading ? <Loader2 size={16} className="animate-spin" /> : "Login"}
       </Button>
     </div>
   );
