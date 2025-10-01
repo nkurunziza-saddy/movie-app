@@ -79,6 +79,23 @@ export default async function Header() {
         </div>
 
         <div className="flex items-center gap-4">
+          {session ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <InfoMenu />
+                {session.user.email === process.env.ADMIN_EMAIL && (
+                  <CreateFormQuickLinks />
+                )}
+              </div>
+              <UserMenu user={session.user} />
+            </div>
+          ) : (
+            <div className="md:flex hidden items-center gap-2">
+              <Button asChild size="sm" className="text-sm">
+                <Link href="/auth/signin">Sign In</Link>
+              </Button>
+            </div>
+          )}
           <Sheet>
             <SheetTrigger className="group size-10 md:hidden">
               <Button size={"icon"} variant={"ghost"}>
@@ -139,23 +156,6 @@ export default async function Header() {
               </SheetFooter>
             </SheetContent>
           </Sheet>
-          {session ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <InfoMenu />
-                {session.user.email === process.env.ADMIN_EMAIL && (
-                  <CreateFormQuickLinks />
-                )}
-              </div>
-              <UserMenu user={session.user} />
-            </div>
-          ) : (
-            <div className="md:flex hidden items-center gap-2">
-              <Button asChild size="sm" className="text-sm">
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </header>
