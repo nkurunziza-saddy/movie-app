@@ -31,6 +31,8 @@ import {
   deleteContent,
   updateMovie,
 } from "@/lib/actions/content-mutations";
+import { getDubbers } from "@/lib/actions/content-query-action";
+import { findOrCreateDubber } from "@/lib/actions/dubber-actions";
 import { uploadFile } from "@/lib/helpers/upload-file";
 import { movieSchema } from "@/lib/form-schema";
 import {
@@ -44,12 +46,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { ContentWithDetails } from "@/lib/db/schema";
+import type { ContentWithDetails, DubberInterface } from "@/lib/db/schema";
 import FileUpload from "@/components/ui/file-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
+import { useQuery } from "@tanstack/react-query";
+import { CreatableCombobox } from "@/components/ui/creatable-combobox";
 
 type MovieFormProps = {
-  initialData?: ContentWithDetails;
+  initialData?: ContentWithDetails & { dubber: DubberInterface | null };
 };
 
 export function CreateMovieForm({ initialData }: MovieFormProps) {
@@ -58,6 +62,11 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
   const [backdropFile, setBackdropFile] = useState<FileWithPreview[]>([]);
   const [movieFile, setMovieFile] = useState<FileWithPreview[]>([]);
   const isEditMode = !!initialData;
+
+  const { data: dubbers, isLoading: isLoadingDubbers } = useQuery({
+    queryKey: ["dubbers"],
+    queryFn: getDubbers,
+  });
 
   const form = useForm<z.infer<typeof movieSchema>>({
     resolver: zodResolver(movieSchema as any),
@@ -69,6 +78,7 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
       trailerUrl: initialData?.trailerKey || "",
       durationMinutes: initialData?.movie?.durationMinutes || undefined,
       status: initialData?.status || "completed",
+      dubberName: initialData?.dubber?.name || undefined,
     },
   });
 
@@ -88,6 +98,21 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
       let posterKey = initialData?.posterKey ?? undefined;
       let backdropKey = initialData?.backdropKey ?? undefined;
       let movieFileKey = initialData?.movie?.movieFileKey;
+      let dubberId: string | null = initialData?.dubberId || null;
+
+      if (data.dubberName === "") {
+        dubberId = null;
+      } else if (data.dubberName) {
+        const isId = dubbers?.some(d => d.id === data.dubberName);
+        if (isId) {
+          dubberId = data.dubberName;
+        } else {
+          const newDubber = await findOrCreateDubber(data.dubberName);
+          if (newDubber) {
+            dubberId = newDubber.id;
+          }
+        }
+      }
 
       const uploadPromises: Promise<any>[] = [];
       if (posterFile[0]) {
@@ -128,6 +153,7 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
         posterKey,
         backdropKey,
         movieFileKey,
+        dubberId,
       };
 
       if (isEditMode) {
@@ -288,22 +314,41 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="trailerUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trailer URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      {...field}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="dubberName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dubber</FormLabel>
+                    <CreatableCombobox
+                      options={dubbers?.map(d => ({ value: d.id, label: d.name })) ?? []}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select or create a dubber..."
+                      emptyMessage="No dubbers found."
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="trailerUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Trailer URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FileUpload
                 label="Poster Image"

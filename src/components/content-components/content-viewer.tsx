@@ -18,9 +18,10 @@ interface ContentViewerProps {
     contentType: "movie" | "tv";
     genre?: string[];
   };
+  dubber?: string;
 }
 
-export function ContentViewer({ content }: ContentViewerProps) {
+export function ContentViewer({ content, dubber }: ContentViewerProps) {
   const [playTrailer, setPlayTrailer] = useState(false);
 
   useEffect(() => {
@@ -104,6 +105,13 @@ export function ContentViewer({ content }: ContentViewerProps) {
                 </Badge>
               ))}
             </div>
+            {dubber && (
+              <div className="flex space-y-2">
+                <Badge key={dubber} variant="secondary" className="text-xs">
+                  {dubber}
+                </Badge>
+              </div>
+            )}
 
             {youtubeId && !playTrailer && (
               <div className="pt-4">

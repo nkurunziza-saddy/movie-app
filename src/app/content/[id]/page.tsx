@@ -31,7 +31,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
     notFound();
   }
 
-  const { movie, tvShow, reviews } = content;
+  const { movie, tvShow, reviews, dubber } = content;
 
   function calculateAverageRating() {
     if (reviews.length === 0) return 0;
@@ -88,6 +88,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
           title: content.title,
           trailerUrl: content.trailerKey || undefined,
         }}
+        dubber={dubber?.name}
       />
 
       <div id="download" className="max-w-4xl md:px-8 lg:px-16 py-4 md:py-12">

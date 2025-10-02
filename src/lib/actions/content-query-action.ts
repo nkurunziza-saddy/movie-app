@@ -2,6 +2,12 @@
 import { db } from "../db/index";
 import { desc } from "drizzle-orm";
 
+export async function getDubbers() {
+  return await db.query.dubbersTable.findMany({
+    orderBy: (dubbers, { asc }) => [asc(dubbers.name)],
+  });
+}
+
 export async function getSeasonsByTvShowId(tvShowId: string) {
   return await db.query.seasonsTable.findMany({
     where: (seasons, { eq }) => eq(seasons.tvShowId, tvShowId),
@@ -60,6 +66,11 @@ export const getContentWithDetails = async (id: string) => {
               },
             },
           },
+        },
+      },
+      dubber: {
+        columns: {
+          name: true,
         },
       },
     },

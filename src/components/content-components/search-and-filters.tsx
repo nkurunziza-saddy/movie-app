@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, ChevronDown } from "lucide-react";
+import { Search, X, ChevronDown, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
+import { getDubbers } from "@/lib/actions/content-query-action";
+import { useQuery } from "@tanstack/react-query";
 
 const genres = [
   "Action",
@@ -28,19 +30,15 @@ export function SearchAndFilters() {
   const searchQuery = searchParams.get("q") ?? "";
   const selectedContentType = searchParams.getAll("contentType");
   const selectedGenres = searchParams.getAll("genre");
-  const selectedQuality = searchParams.get("quality") ?? "";
+  const selectedDubbers = searchParams.getAll("dubbers") ?? "";
 
   const [showFilters, setShowFilters] = useState(false);
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      return params.toString();
-    },
-    [searchParams]
-  );
-
+  const { data: dubbersData, isLoading: isLoadingDubbers } = useQuery({
+    queryKey: ["dubbers"],
+    queryFn: getDubbers,
+  });
+  const dubbers = dubbersData?.map((t) => t.name);
   const updateQueryString = (newParams: URLSearchParams) => {
     router.replace(`/?${newParams.toString()}`, { scroll: false });
   };
@@ -57,10 +55,14 @@ export function SearchAndFilters() {
 
   const toggleContentType = (content_type: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (selectedQuality === content_type) {
+    const currentTypes = params.getAll("contentType");
+    if (currentTypes.includes(content_type)) {
       params.delete("contentType");
+      currentTypes
+        .filter((t) => t !== content_type)
+        .forEach((t) => params.append("contentType", t));
     } else {
-      params.set("contentType", content_type);
+      params.append("contentType", content_type);
     }
     updateQueryString(params);
   };
@@ -75,6 +77,20 @@ export function SearchAndFilters() {
         .forEach((g) => params.append("genre", g));
     } else {
       params.append("genre", genre);
+    }
+    updateQueryString(params);
+  };
+
+  const toggleDubber = (dubber: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const currentDubbers = params.getAll("dubbers");
+    if (currentDubbers.includes(dubber)) {
+      params.delete("dubbers");
+      currentDubbers
+        .filter((g) => g !== dubber)
+        .forEach((g) => params.append("dubbers", g));
+    } else {
+      params.append("dubbers", dubber);
     }
     updateQueryString(params);
   };
@@ -103,6 +119,16 @@ export function SearchAndFilters() {
     updateQueryString(params);
   };
 
+  const removeDubber = (dubber: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const currentDubbers = params.getAll("dubbers");
+    params.delete("dubbers");
+    currentDubbers
+      .filter((g) => g !== dubber)
+      .forEach((g) => params.append("dubbers", g));
+    updateQueryString(params);
+  };
+
   const removeSearchQuery = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("q");
@@ -110,7 +136,10 @@ export function SearchAndFilters() {
   };
 
   const hasActiveFilters =
-    selectedGenres.length > 0 || selectedQuality || searchQuery;
+    selectedGenres.length > 0 ||
+    selectedDubbers.length > 0 ||
+    selectedContentType.length > 0 ||
+    !!searchQuery;
 
   return (
     <div className="mb-8 space-y-4">
@@ -138,8 +167,10 @@ export function SearchAndFilters() {
               className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
             >
               {selectedGenres.length +
-                (selectedContentType ? 1 : 0) +
-                (searchQuery ? 1 : 0)}
+                selectedDubbers.length +
+                selectedContentType.length +
+                (searchQuery ? 1 : 0) +
+                (selectedDubbers ? 1 : 0)}
             </Badge>
           )}
           <ChevronDown className="size-4" />
@@ -198,6 +229,34 @@ export function SearchAndFilters() {
                 ))}
               </div>
             </div>
+            {dubbers?.length === 0 && !isLoadingDubbers ? null : (
+              <div>
+                <h3 className="font-medium text-base text-card-foreground mb-3">
+                  Abasobanuzi
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {isLoadingDubbers ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    dubbers?.map((dubber) => (
+                      <Button
+                        key={dubber}
+                        variant={
+                          selectedDubbers.includes(dubber)
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() => toggleDubber(dubber)}
+                        className="capitalize"
+                      >
+                        {dubber}
+                      </Button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -236,6 +295,19 @@ export function SearchAndFilters() {
               <X
                 className="size-3 cursor-pointer"
                 onClick={() => removeGenre(genre)}
+              />
+            </Badge>
+          ))}
+          {selectedDubbers.map((dubber) => (
+            <Badge
+              key={dubber}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
+              {dubber}
+              <X
+                className="size-3 cursor-pointer"
+                onClick={() => removeDubber(dubber)}
               />
             </Badge>
           ))}

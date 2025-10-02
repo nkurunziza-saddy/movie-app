@@ -2,7 +2,7 @@
 
 import { db } from "../db/index";
 import { contentTable } from "../db/schema";
-import { eq, desc, sql, and, SQL, ilike, or, asc } from "drizzle-orm";
+import { eq, desc, sql, and, SQL, ilike, or, asc, inArray } from "drizzle-orm";
 
 export const getContent = async (
   searchParams: Record<string, string | string[] | undefined>
@@ -12,6 +12,11 @@ export const getContent = async (
       ? searchParams.genre
       : searchParams.genre
       ? [searchParams.genre]
+      : [],
+    dubbers: Array.isArray(searchParams.dubbers)
+      ? searchParams.dubbers
+      : searchParams.dubbers
+      ? [searchParams.dubbers]
       : [],
     contentType: searchParams.contentType as "movie" | "tv" | undefined,
     search: typeof searchParams.q === "string" ? searchParams.q : undefined,
@@ -63,6 +68,10 @@ export const getContent = async (
           ilike(contentTable.description, `%${filters.search}%`),
         ];
         conditions.push(or(...searchConditions));
+      }
+
+      if (filters?.dubbers && filters.dubbers.length > 0) {
+        conditions.push(inArray(contentTable.dubberId, filters.dubbers));
       }
 
       return and(...conditions.filter((c): c is SQL => !!c));

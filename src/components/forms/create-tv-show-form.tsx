@@ -33,7 +33,7 @@ import {
   updateTvShow,
 } from "@/lib/actions/content-mutations";
 import { uploadFile } from "@/lib/helpers/upload-file";
-import { ContentWithDetails } from "@/lib/db/schema";
+import { ContentWithDetails, DubberInterface } from "@/lib/db/schema";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +47,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import FileUpload from "@/components/ui/file-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
+import { useQuery } from "@tanstack/react-query";
+import { getDubbers } from "@/lib/actions/content-query-action";
+import { findOrCreateDubber } from "@/lib/actions/dubber-actions";
+import { CreatableCombobox } from "@/components/ui/creatable-combobox";
 
 // TODO: These schemas should be moved to @/lib/form-schema.ts
 const episodeSchema = z.object({
@@ -73,6 +77,7 @@ const tvShowSchema = z.object({
     .optional()
     .or(z.literal("")),
   status: z.enum(["completed", "ongoing", "cancelled"]).default("ongoing"),
+  dubberName: z.string().optional(),
   seasons: z
     .array(seasonSchema)
     .min(1, "A TV show must have at least one season."),
@@ -179,7 +184,7 @@ function EpisodeFields({
 }
 
 type TvShowFormProps = {
-  initialData?: ContentWithDetails;
+  initialData?: ContentWithDetails & { dubber: DubberInterface | null };
 };
 
 export function CreateTvShowForm({ initialData }: TvShowFormProps) {
@@ -192,6 +197,11 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
 
   const isEditMode = !!initialData;
 
+  const { data: dubbers, isLoading: isLoadingDubbers } = useQuery({
+    queryKey: ["dubbers"],
+    queryFn: getDubbers,
+  });
+
   const form = useForm<z.infer<typeof tvShowSchema>>({
     resolver: zodResolver(tvShowSchema as any),
     defaultValues: {
@@ -201,6 +211,7 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
       releaseYear: initialData?.releaseYear || undefined,
       trailerUrl: initialData?.trailerKey || "",
       status: initialData?.status || "ongoing",
+      dubberName: initialData?.dubber?.name || undefined,
       seasons: initialData?.tvShow?.seasons?.length
         ? initialData.tvShow.seasons.map((s) => ({
             seasonNumber: s.seasonNumber,
@@ -247,6 +258,21 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
       const uploadPromises: Promise<any>[] = [];
       let posterKey = initialData?.posterKey ?? undefined;
       let backdropKey = initialData?.backdropKey ?? undefined;
+      let dubberId: string | null = initialData?.dubberId || null;
+
+      if (data.dubberName === "") {
+        dubberId = null;
+      } else if (data.dubberName) {
+        const isId = dubbers?.some(d => d.id === data.dubberName);
+        if (isId) {
+          dubberId = data.dubberName;
+        } else {
+          const newDubber = await findOrCreateDubber(data.dubberName);
+          if (newDubber) {
+            dubberId = newDubber.id;
+          }
+        }
+      }
 
       if (posterFile[0]) {
         uploadPromises.push(
@@ -310,6 +336,7 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
         posterKey: posterKey,
         backdropKey: backdropKey,
         seasons: seasonsWithKeys,
+        dubberId,
       };
 
       if (isEditMode) {
@@ -451,31 +478,50 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
                 accept="image/*"
               />
             </div>
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="ongoing">Ongoing</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dubberName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dubber</FormLabel>
+                    <CreatableCombobox
+                      options={dubbers?.map(d => ({ value: d.id, label: d.name })) ?? []}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select or create a dubber..."
+                      emptyMessage="No dubbers found."
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 

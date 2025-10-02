@@ -92,6 +92,14 @@ export const verificationsTable = pgTable("verifications", {
     .notNull(),
 });
 
+export const dubbersTable = pgTable("dubbers", {
+  id: text("id")
+    .primaryKey()
+    .notNull()
+    .default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+});
+
 export const contentTable = pgTable("content", {
   id: text("id")
     .primaryKey()
@@ -108,6 +116,9 @@ export const contentTable = pgTable("content", {
   status: contentStatusEnum("content_status").default("completed"),
   uploadDate: timestamp("upload_date").defaultNow(),
   uploaderId: text("uploader_id").references(() => usersTable.id, {
+    onDelete: "set null",
+  }),
+  dubberId: text("dubber_id").references(() => dubbersTable.id, {
     onDelete: "set null",
   }),
   downloadCount: integer("download_count").default(0),
@@ -258,6 +269,10 @@ export const contentRelations = relations(contentTable, ({ one, many }) => ({
     fields: [contentTable.uploaderId],
     references: [usersTable.id],
   }),
+  dubber: one(dubbersTable, {
+    fields: [contentTable.dubberId],
+    references: [dubbersTable.id],
+  }),
   movie: one(moviesTable, {
     fields: [contentTable.id],
     references: [moviesTable.contentId],
@@ -344,6 +359,10 @@ export const downloadsRelations = relations(downloadsTable, ({ one }) => ({
   }),
 }));
 
+export const dubbersRelations = relations(dubbersTable, ({ many }) => ({
+  contents: many(contentTable),
+}));
+
 export type ContentInterface = typeof contentTable.$inferSelect;
 export type SeasonInterface = typeof seasonsTable.$inferSelect;
 export type EpisodeInterface = typeof episodesTable.$inferSelect;
@@ -353,8 +372,10 @@ export type ReviewInterface = typeof reviewsTable.$inferSelect;
 export type BookmarkInterface = typeof bookmarksTable.$inferSelect;
 export type DownloadInterface = typeof downloadsTable.$inferSelect;
 export type UserInterface = typeof usersTable.$inferSelect;
+export type DubberInterface = typeof dubbersTable.$inferSelect;
 
 export type ContentWithDetails = ContentInterface & {
+  dubber: DubberInterface | null;
   movie: MovieInterface;
   reviews: {
     id: string;

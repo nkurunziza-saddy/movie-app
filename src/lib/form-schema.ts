@@ -12,6 +12,7 @@ export const movieSchema = z.object({
     .or(z.literal("")),
   durationMinutes: z.coerce.number().optional(),
   status: z.enum(["completed", "ongoing", "cancelled"]).default("completed"),
+  dubberName: z.string().optional(),
 });
 
 export const seasonSchema = z.object({
