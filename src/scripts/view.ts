@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { dubbersTable } from "@/lib/db/schema";
 
 async function main() {
   const data = await db.query.dubbersTable.findMany({

@@ -26,7 +26,11 @@ export default function NavigationMenuItems({
     <>
       {links.map((link, index) => (
         <NavigationMenuItem key={index} className={!isDesktop ? "w-full" : ""}>
-          <NavigationMenuLink href={link.href} active={pathname === link.href}>
+          <NavigationMenuLink
+            href={link.href}
+            className="py-1 capitalize"
+            active={pathname === link.href}
+          >
             {link.label}
           </NavigationMenuLink>
         </NavigationMenuItem>

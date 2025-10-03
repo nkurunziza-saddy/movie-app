@@ -20,7 +20,7 @@ export const getPresignedUrl = cache(
         : undefined,
     });
 
-    const signedUrl = await getSignedUrl(R2, command, { expiresIn: 604800 }); // 7 days
+    const signedUrl = await getSignedUrl(R2, command, { expiresIn: 604800 });
 
     return signedUrl;
   }

@@ -83,10 +83,6 @@ const tvShowSchema = z.object({
     .min(1, "A TV show must have at least one season."),
 });
 
-interface FileStore {
-  [key: string]: File | null;
-}
-
 function EpisodeFields({
   control,
   seasonIndex,
@@ -496,8 +492,10 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
                     <FormLabel>Dubber</FormLabel>
                     <CreatableCombobox
                       options={
-                        dubbers?.map((d) => ({ value: d.id, label: d.name })) ??
-                        []
+                        dubbers?.map((d) => ({
+                          value: d.name,
+                          label: d.name,
+                        })) ?? []
                       }
                       value={field.value}
                       onChange={field.onChange}

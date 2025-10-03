@@ -2,7 +2,6 @@ import { AddEpisodeForm } from "@/components/forms/add-episode-form";
 import { CreateMovieForm } from "@/components/forms/create-movie-form";
 import { CreateSeasonForm } from "@/components/forms/create-season-form";
 import { CreateTvShowForm } from "@/components/forms/create-tv-show-form";
-import { notFound } from "next/navigation";
 
 export const FORMS_DETAILS = [
   {

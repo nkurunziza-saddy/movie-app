@@ -18,7 +18,7 @@ export default async function ActivityPage() {
 
   return (
     <div className="">
-      <div className="border-b border-border/40 bg-background/95 backdrop-blur">
+      <div className="border-b border-border/40">
         <div className="py-6">
           <div className="flex items-center justify-between">
             <div>

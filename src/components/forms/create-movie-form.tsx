@@ -32,7 +32,6 @@ import {
   updateMovie,
 } from "@/lib/actions/content-mutations";
 import { getDubbers } from "@/lib/actions/content-query-action";
-import { findOrCreateDubber } from "@/lib/actions/dubber-actions";
 import { uploadFile } from "@/lib/helpers/upload-file";
 import { movieSchema } from "@/lib/form-schema";
 import {
@@ -306,8 +305,10 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
                     <FormLabel>Dubber</FormLabel>
                     <CreatableCombobox
                       options={
-                        dubbers?.map((d) => ({ value: d.id, label: d.name })) ??
-                        []
+                        dubbers?.map((d) => ({
+                          value: d.name,
+                          label: d.name,
+                        })) ?? []
                       }
                       value={field.value}
                       onChange={field.onChange}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use server";
 
 import { db } from "@/lib/db";
@@ -16,10 +15,7 @@ export async function findOrCreateDubber(name: string) {
     return existingDubber;
   }
 
-  const newDubber = await db
-    .insert(dubbersTable)
-    .values({ name })
-    .returning();
+  const newDubber = await db.insert(dubbersTable).values({ name }).returning();
 
   return newDubber[0]!;
 }

@@ -107,7 +107,15 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium">{`S${season.seasonNumber}E${episode.episodeNumber} - ${episode.title}`}</h4>
+                          <h4 className="font-medium">
+                            {[
+                              `S${season.seasonNumber}E${episode.episodeNumber}`,
+                              episode.title?.trim() || null,
+                            ]
+                              .filter(Boolean)
+                              .join(" - ")}
+                          </h4>
+
                           <p className="text-sm text-muted-foreground mt-1">
                             {episode.description}
                           </p>
