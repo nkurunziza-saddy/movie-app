@@ -98,7 +98,6 @@ export function CreateSeasonForm() {
     toast.info("Creating new season...");
     try {
       await createSeason(data);
-      console.log(data);
       toast.success(`Successfully created ${data.title}!`);
       form.reset();
       setSelectedTvShowId(null);

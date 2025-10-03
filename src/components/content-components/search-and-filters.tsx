@@ -38,7 +38,6 @@ export function SearchAndFilters() {
     queryKey: ["dubbers"],
     queryFn: getDubbers,
   });
-  console.log({ dubbersData });
   const updateQueryString = (newParams: URLSearchParams) => {
     router.replace(`/?${newParams.toString()}`, { scroll: false });
   };
