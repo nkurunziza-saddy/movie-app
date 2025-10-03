@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -54,15 +54,14 @@ export function SearchAndFilters() {
 
   const toggleContentType = (content_type: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    const currentTypes = params.getAll("contentType");
-    if (currentTypes.includes(content_type)) {
+    const current = params.get("contentType");
+
+    if (current === content_type) {
       params.delete("contentType");
-      currentTypes
-        .filter((t) => t !== content_type)
-        .forEach((t) => params.append("contentType", t));
     } else {
-      params.append("contentType", content_type);
+      params.set("contentType", content_type);
     }
+
     updateQueryString(params);
   };
 
