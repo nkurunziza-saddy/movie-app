@@ -352,7 +352,7 @@ export function CreateMovieForm({ initialData }: MovieFormProps) {
               label="Movie File"
               onFilesChange={setMovieFile}
               accept="video/*"
-              maxSize={1024 * 1024 * 500} // 500MB
+              maxSize={1024 * 1024 * 3200}
             />
           </CardContent>
         </Card>

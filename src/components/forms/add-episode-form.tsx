@@ -260,7 +260,7 @@ export function AddEpisodeForm() {
         <FileUpload
           label="Video File"
           onFilesChange={setVideoFile}
-          maxSize={1024 * 1024 * 500} // 500MB
+          maxSize={1024 * 1024 * 3200}
           accept="video/*"
         />
         <Button

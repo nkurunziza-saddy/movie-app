@@ -170,7 +170,7 @@ function EpisodeFields({
                 onFileChange(`season-${seasonIndex}-episode-${index}`, files)
               }
               accept="video/*"
-              maxSize={1024 * 1024 * 500} // 500MB
+              maxSize={1024 * 1024 * 3200}
             />
           </div>
         ))}
