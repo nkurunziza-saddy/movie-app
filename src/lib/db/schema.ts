@@ -205,10 +205,10 @@ export const reviewsTable = pgTable(
       .notNull()
       .default(sql`gen_random_uuid()`),
     userId: text("user_id")
-      .references(() => usersTable.id)
+      .references(() => usersTable.id, { onDelete: "cascade" })
       .notNull(),
     contentId: text("content_id")
-      .references(() => contentTable.id)
+      .references(() => contentTable.id, { onDelete: "cascade" })
       .notNull(),
     rating: integer("rating").notNull(),
     reviewText: text("review_text"),
@@ -226,10 +226,10 @@ export const bookmarksTable = pgTable(
       .notNull()
       .default(sql`gen_random_uuid()`),
     userId: text("user_id")
-      .references(() => usersTable.id)
+      .references(() => usersTable.id, { onDelete: "cascade" })
       .notNull(),
     contentId: text("content_id")
-      .references(() => contentTable.id)
+      .references(() => contentTable.id, { onDelete: "cascade" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow(),
   },
@@ -246,12 +246,18 @@ export const downloadsTable = pgTable("downloads", {
     .primaryKey()
     .notNull()
     .default(sql`gen_random_uuid()`),
-  userId: text("user_id").references(() => usersTable.id),
+  userId: text("user_id").references(() => usersTable.id, {
+    onDelete: "set null",
+  }),
   contentId: text("content_id")
-    .references(() => contentTable.id)
+    .references(() => contentTable.id, { onDelete: "cascade" })
     .notNull(),
-  movieId: text("movie_id").references(() => moviesTable.id),
-  episodeId: text("episode_id").references(() => episodesTable.id),
+  movieId: text("movie_id").references(() => moviesTable.id, {
+    onDelete: "set null",
+  }),
+  episodeId: text("episode_id").references(() => episodesTable.id, {
+    onDelete: "set null",
+  }),
   downloadDate: timestamp("download_date").defaultNow(),
   ipAddress: inet("ip_address"),
   userAgent: varchar("user_agent", { length: 500 }),

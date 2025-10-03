@@ -116,7 +116,7 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
                               .join(" - ")}
                           </h4>
 
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-muted-foreground mt-1">
                             {episode.description}
                           </p>
                         </div>
@@ -131,10 +131,10 @@ export default async function ContentPage(props: PageProps<"/content/[id]">) {
             </div>
           )}
 
-          <Button variant="outline" size="sm">
+          {/* <Button variant="outline" size="sm">
             <Share className="size-4 mr-1" />
             Share
-          </Button>
+          </Button> */}
           <BookmarkButton isBookmarked={isBookmarked} contentId={content.id} />
           {session?.user?.email === process.env.ADMIN_EMAIL && (
             <DeleteContentButton contentId={content.id} />

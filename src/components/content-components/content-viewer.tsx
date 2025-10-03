@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { R2Image } from "../r2-image";
+import { PlayIcon } from "lucide-react";
 
 interface ContentViewerProps {
   content: {
@@ -107,9 +108,10 @@ export function ContentViewer({ content, dubber }: ContentViewerProps) {
               <div className="pt-4">
                 <Button
                   onClick={() => setPlayTrailer(true)}
-                  variant="secondary"
+                  variant="outline"
                   size="sm"
                 >
+                  <PlayIcon fill="currentColor" />
                   Play Trailer
                 </Button>
               </div>
