@@ -45,7 +45,6 @@ export default function FileUpload({
   return (
     <div className="flex flex-col gap-2">
       {label && <FormLabel>{label}</FormLabel>}
-      {/* Drop area */}
       <div
         role="button"
         onClick={openFileDialog}
@@ -87,7 +86,6 @@ export default function FileUpload({
         </div>
       )}
 
-      {/* File list */}
       {file && (
         <div className="space-y-2">
           <div

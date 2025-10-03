@@ -5,13 +5,16 @@ import {
   DynamicAuthHeader,
 } from "@/components/auth-components/dynamic-auth-content";
 import Logo from "@/components/navbar-components/logo";
+import Link from "next/link";
 const layout = (props: LayoutProps<"/auth">) => {
   return (
     <div className="fixed inset-0 bg-background flex items-center justify-center px-1 py-4 sm:p-4 z-50">
       <div className="flex flex-col gap-4 min-h-screen w-full items-center justify-center px-1 py-4 sm:p-4">
         <div className="flex gap-2 items-center">
           <Logo />
-          <h2 className="text-lg font-semibold ">AllMovies</h2>
+          <Link href={"/"} className="text-lg font-semibold ">
+            AllMovies
+          </Link>
         </div>
         <Card className="w-full sm:max-w-md">
           <DynamicAuthHeader />
