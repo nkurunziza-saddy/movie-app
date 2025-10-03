@@ -4,8 +4,6 @@ import UserMenu from "@/components/navbar-components/user-menu";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Equal } from "lucide-react";
@@ -30,6 +28,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import NavigationMenuItems from "./navigation-menu-items";
 
 const navigationLinks = [
   { href: "/", label: "home" },
@@ -63,16 +62,7 @@ export default async function Header() {
 
             <NavigationMenu className="max-md:hidden">
               <NavigationMenuList className="gap-2">
-                {betterNav.map((link, index) => (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
-                      href={link.href}
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium"
-                    >
-                      {link.label}
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
+                <NavigationMenuItems links={betterNav} isDesktop={true} />
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -97,8 +87,12 @@ export default async function Header() {
             </div>
           )}
           <Sheet>
-            <SheetTrigger className="group size-10 md:hidden">
-              <Button size={"icon"} variant={"ghost"}>
+            <SheetTrigger asChild>
+              <Button
+                size={"icon"}
+                variant={"ghost"}
+                className="md:hidden group"
+              >
                 <Equal />
               </Button>
             </SheetTrigger>
@@ -112,16 +106,10 @@ export default async function Header() {
               </SheetHeader>
               <NavigationMenu className="max-w-none *:w-full flex flex-col items-center justify-start">
                 <NavigationMenuList className="flex-col px-2 items-start gap-2 md:gap-2">
-                  {navigationLinks.map((link, index) => (
-                    <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink
-                        href={link.href}
-                        className="py-1.5 text-2xl"
-                      >
-                        {link.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
+                  <NavigationMenuItems
+                    links={navigationLinks}
+                    isDesktop={false}
+                  />
                 </NavigationMenuList>
               </NavigationMenu>
               <SheetFooter>

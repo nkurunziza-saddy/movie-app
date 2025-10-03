@@ -24,16 +24,6 @@ interface ContentViewerProps {
 export function ContentViewer({ content, dubber }: ContentViewerProps) {
   const [playTrailer, setPlayTrailer] = useState(false);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (content.trailerUrl && !playTrailer) {
-      timer = setTimeout(() => {
-        setPlayTrailer(true);
-      }, 10000);
-    }
-    return () => clearTimeout(timer);
-  }, [content.trailerUrl, playTrailer]);
-
   const getYouTubeId = (url: string) => {
     const match = url.match(
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
@@ -107,7 +97,7 @@ export function ContentViewer({ content, dubber }: ContentViewerProps) {
             </div>
             {dubber && (
               <div className="flex space-y-2">
-                <Badge key={dubber} variant="secondary" className="text-xs">
+                <Badge key={dubber} variant="default" className="text-xs">
                   {dubber}
                 </Badge>
               </div>

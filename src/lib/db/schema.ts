@@ -375,7 +375,9 @@ export type UserInterface = typeof usersTable.$inferSelect;
 export type DubberInterface = typeof dubbersTable.$inferSelect;
 
 export type ContentWithDetails = ContentInterface & {
-  dubber: DubberInterface | null;
+  dubber: {
+    name: string;
+  } | null;
   movie: MovieInterface;
   reviews: {
     id: string;

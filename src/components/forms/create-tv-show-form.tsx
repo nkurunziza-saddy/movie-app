@@ -184,7 +184,7 @@ function EpisodeFields({
 }
 
 type TvShowFormProps = {
-  initialData?: ContentWithDetails & { dubber: DubberInterface | null };
+  initialData?: ContentWithDetails;
 };
 
 export function CreateTvShowForm({ initialData }: TvShowFormProps) {
@@ -258,21 +258,6 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
       const uploadPromises: Promise<any>[] = [];
       let posterKey = initialData?.posterKey ?? undefined;
       let backdropKey = initialData?.backdropKey ?? undefined;
-      let dubberId: string | null = initialData?.dubberId || null;
-
-      if (data.dubberName === "") {
-        dubberId = null;
-      } else if (data.dubberName) {
-        const isId = dubbers?.some(d => d.id === data.dubberName);
-        if (isId) {
-          dubberId = data.dubberName;
-        } else {
-          const newDubber = await findOrCreateDubber(data.dubberName);
-          if (newDubber) {
-            dubberId = newDubber.id;
-          }
-        }
-      }
 
       if (posterFile[0]) {
         uploadPromises.push(
@@ -336,7 +321,6 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
         posterKey: posterKey,
         backdropKey: backdropKey,
         seasons: seasonsWithKeys,
-        dubberId,
       };
 
       if (isEditMode) {
@@ -511,7 +495,10 @@ export function CreateTvShowForm({ initialData }: TvShowFormProps) {
                   <FormItem>
                     <FormLabel>Dubber</FormLabel>
                     <CreatableCombobox
-                      options={dubbers?.map(d => ({ value: d.id, label: d.name })) ?? []}
+                      options={
+                        dubbers?.map((d) => ({ value: d.id, label: d.name })) ??
+                        []
+                      }
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Select or create a dubber..."

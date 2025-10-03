@@ -12,6 +12,7 @@ import { R2 } from "../r2";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { findOrCreateDubber } from "./dubber-actions";
 
 export async function createMovie(data: {
   title: string;
@@ -23,10 +24,19 @@ export async function createMovie(data: {
   posterKey: string;
   backdropKey?: string;
   movieFileKey: string;
+  dubberName?: string;
 }) {
   const session = await requireAdmin();
 
   return await db.transaction(async (tx) => {
+    let dubberId: string | null = null;
+    if (data.dubberName) {
+      const dubber = await findOrCreateDubber(data.dubberName);
+      if (dubber) {
+        dubberId = dubber.id;
+      }
+    }
+
     const [newContent] = await tx
       .insert(contentTable)
       .values({
@@ -39,6 +49,7 @@ export async function createMovie(data: {
         trailerKey: data.trailerUrl,
         contentType: "movie",
         uploaderId: session.user.id,
+        dubberId,
       })
       .returning();
 
@@ -64,6 +75,7 @@ export async function createTvShow(data: {
   status: "completed" | "ongoing" | "cancelled";
   posterKey?: string;
   backdropKey?: string;
+  dubberName?: string;
   seasons: {
     seasonNumber: number;
     title?: string;
@@ -77,6 +89,14 @@ export async function createTvShow(data: {
   const session = await requireAdmin();
 
   return await db.transaction(async (tx) => {
+    let dubberId: string | null = null;
+    if (data.dubberName) {
+      const dubber = await findOrCreateDubber(data.dubberName);
+      if (dubber) {
+        dubberId = dubber.id;
+      }
+    }
+
     const [newContent] = await tx
       .insert(contentTable)
       .values({
@@ -90,6 +110,7 @@ export async function createTvShow(data: {
         contentType: "tv",
         status: data.status,
         uploaderId: session.user.id,
+        dubberId,
       })
       .returning();
 
@@ -241,11 +262,22 @@ export async function updateMovie(
     releaseYear?: number;
     trailerUrl?: string;
     durationMinutes?: number;
+    dubberName?: string;
   }
 ) {
   await requireAdmin();
 
   await db.transaction(async (tx) => {
+    let dubberId: string | null = null;
+    if (data.dubberName === "") {
+      dubberId = null;
+    } else if (data.dubberName) {
+      const dubber = await findOrCreateDubber(data.dubberName);
+      if (dubber) {
+        dubberId = dubber.id;
+      }
+    }
+
     await tx
       .update(contentTable)
       .set({
@@ -254,6 +286,7 @@ export async function updateMovie(
         genre: data.genre?.split(",").map((g) => g.trim()),
         releaseYear: data.releaseYear,
         trailerKey: data.trailerUrl,
+        dubberId,
       })
       .where(eq(contentTable.id, contentId));
 
@@ -282,6 +315,7 @@ export async function updateTvShow(
     status: "completed" | "ongoing" | "cancelled";
     posterKey?: string;
     backdropKey?: string;
+    dubberName?: string;
     seasons: {
       seasonNumber: number;
       title?: string;
@@ -296,6 +330,16 @@ export async function updateTvShow(
   await requireAdmin();
 
   return await db.transaction(async (tx) => {
+    let dubberId: string | null = null;
+    if (data.dubberName === "") {
+      dubberId = null;
+    } else if (data.dubberName) {
+      const dubber = await findOrCreateDubber(data.dubberName);
+      if (dubber) {
+        dubberId = dubber.id;
+      }
+    }
+
     await tx
       .update(contentTable)
       .set({
@@ -307,6 +351,7 @@ export async function updateTvShow(
         status: data.status,
         posterKey: data.posterKey,
         backdropKey: data.backdropKey,
+        dubberId,
       })
       .where(eq(contentTable.id, contentId));
 

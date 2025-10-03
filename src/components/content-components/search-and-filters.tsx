@@ -169,8 +169,7 @@ export function SearchAndFilters() {
               {selectedGenres.length +
                 selectedDubbers.length +
                 selectedContentType.length +
-                (searchQuery ? 1 : 0) +
-                (selectedDubbers ? 1 : 0)}
+                (searchQuery ? 1 : 0)}{" "}
             </Badge>
           )}
           <ChevronDown className="size-4" />
@@ -229,7 +228,7 @@ export function SearchAndFilters() {
                 ))}
               </div>
             </div>
-            {dubbers?.length === 0 && !isLoadingDubbers ? null : (
+            {dubbersData?.length === 0 && !isLoadingDubbers ? null : (
               <div>
                 <h3 className="font-medium text-base text-card-foreground mb-3">
                   Abasobanuzi
@@ -238,19 +237,19 @@ export function SearchAndFilters() {
                   {isLoadingDubbers ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    dubbers?.map((dubber) => (
+                    dubbersData?.map((dubber) => (
                       <Button
-                        key={dubber}
+                        key={dubber.id}
                         variant={
-                          selectedDubbers.includes(dubber)
+                          selectedDubbers.includes(dubber.id)
                             ? "default"
                             : "outline"
                         }
                         size="sm"
-                        onClick={() => toggleDubber(dubber)}
+                        onClick={() => toggleDubber(dubber.id)}
                         className="capitalize"
                       >
-                        {dubber}
+                        {dubber.name}
                       </Button>
                     ))
                   )}
@@ -304,7 +303,7 @@ export function SearchAndFilters() {
               variant="secondary"
               className="flex items-center gap-1"
             >
-              {dubber}
+              {dubbersData?.find((d) => d.id === dubber)?.name}
               <X
                 className="size-3 cursor-pointer"
                 onClick={() => removeDubber(dubber)}

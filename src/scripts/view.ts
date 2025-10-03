@@ -1,17 +1,16 @@
 import { db } from "@/lib/db";
+import { dubbersTable } from "@/lib/db/schema";
 
-async function reset() {
-  const data = await db.query.downloadsTable.findMany({
+async function main() {
+  const data = await db.query.dubbersTable.findMany({
     with: {
-      content: true,
-      user: true,
+      contents: true,
     },
   });
   console.log(data);
   process.exit(0);
 }
 
-reset().catch((err) => {
-  console.error("Failed to reset database:", err);
+main().catch((err) => {
   process.exit(1);
 });
