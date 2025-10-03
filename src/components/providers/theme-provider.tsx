@@ -11,7 +11,7 @@ export function ThemeProvider({
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="supabase"
       themes={THEME_OPTIONS}
       enableSystem
       disableTransitionOnChange
