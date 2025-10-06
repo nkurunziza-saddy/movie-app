@@ -126,7 +126,7 @@ export default async function Header() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="px-4">
-                        <div className="flex text-sm flex-col text-foreground/85 gap-0.5">
+                        <div className="flex text-sm flex-col text-foreground/85 px-4 gap-0.5">
                           <li className="">Bookmarking</li>
                           <li className="">Specific suggestions</li>
                           <li className="">Record your activities</li>
