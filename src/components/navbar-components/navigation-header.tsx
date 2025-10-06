@@ -126,12 +126,12 @@ export default async function Header() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="px-4">
-                        <div className="flex text-sm flex-col text-foreground/85 px-4 gap-0.5">
+                        <ul className="flex text-sm flex-col list-none text-foreground/85 px-4 gap-0.5">
                           <li className="">Bookmarking</li>
                           <li className="">Specific suggestions</li>
                           <li className="">Record your activities</li>
                           <li className="">and many more</li>
-                        </div>
+                        </ul>
                         <CardFooter className="px-0 mt-3">
                           <Button asChild>
                             <Link href="/auth/signin">Sign In</Link>
