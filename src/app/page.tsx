@@ -21,7 +21,7 @@ export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   return (
     <main className="">
-      <div className="py-8 space-y-8">
+      <div className="py-4 md:py-8 soace-y-4 md:space-y-8">
         <Suspense fallback={<FeaturedCarouselSkeleton />}>
           <FeatureCatalogServer />
         </Suspense>
